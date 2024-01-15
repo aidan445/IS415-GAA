@@ -28,6 +28,7 @@ Code chunk to convert the data type of *pingtimestamp* from character to date-ti
 
 ```{r}
 #| eval: false
+
 df$pingtimestamp <- as_datetime(df$pingtimestamp)
 ```
 
@@ -40,13 +41,17 @@ Extract trip starting locations
 -   name the output tibble.data.frame *origin_df*
 
 ```{r}
+#| eval: false
+
 origin_df <- df %>%
-  arrange(pingtimestamp) %>%
   group_by(trj_id) %>%
-  filter(row_number() == 1) %>%
-  mutate(weekday = lubridate::wday(pingtimestamp, label = TRUE, abbr = TRUE),
-         start_hr = factor(lubridate::hour(pingtimestamp)),
-         day = factor(lubridate::mday(pingtimestamp)))
+  arrange(pingtimestamp) %>%
+  filter(row_number()==1) %>%
+  mutate(weekday = wday(pingtimestamp,
+                        label=TRUE,
+                        abbr=TRUE),
+         start_hr = factor(hour(pingtimestamp)),
+         day = factor(mday(pingtimestamp)))
 
 ```
 
@@ -58,6 +63,8 @@ Extracting trip ending locations
 
 -   deriving weekday, ending hour & day of month columns
 ```{r}
+#| eval: false
+
 destination_df <- df %>%
   group_by(trj_id) %>%
   arrange(desc(pingtimestamp)) %>%
@@ -75,6 +82,8 @@ destination_df <- df %>%
 
 Now, we want to save this processed data to use in the future so we don't have to repeat the sorting process again and again.
 ```{r}
+#| eval: false
+
 write_rds(origin_df, "../../data/rds/origin_df.rds")
 write_rds(destination_df, "../../data/rds/destination_df.rds")
 ```

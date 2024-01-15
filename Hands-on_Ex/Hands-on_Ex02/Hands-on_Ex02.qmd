@@ -1,7 +1,9 @@
 ---
 title: "Hands-on_Ex02"
 ---
+
 2.3.1 & 2.3.2: Data & Importing of Data into R
+
 ```{r}
 pacman::p_load(sf, tmap, tidyverse)
 ```
@@ -14,16 +16,20 @@ mpsz <- st_read(dsn = data_folder_mp,
 
 mpsz
 ```
+
 2.3.3 Importing Attribute Data into R
+
 ```{r}
 data_folder_rp <- "../../data/Respopagesextod2011to2020"
 data_file_rp <- paste0(data_folder_rp, "/respopagesextod2011to2020.csv")
 popdata <- read_csv(data_file_rp)
 
 ```
+
 2.3.4 Data Preparation
 
 2.3.4.1 Data wrangling
+
 ```{r}
 popdata2020 <- popdata %>%
   filter(Time == 2020) %>%
@@ -44,7 +50,9 @@ mutate(`DEPENDENCY` = (`YOUNG` + `AGED`)
        `ECONOMY ACTIVE`, `AGED`, 
        `TOTAL`, `DEPENDENCY`)
 ```
+
 2.3.4.2 Joining the attribute data and geospatial data
+
 ```{r}
 popdata2020 <- popdata2020 %>%
   mutate_at(.vars = vars(PA, SZ), 
@@ -56,15 +64,19 @@ mpsz_pop2020 <- left_join(mpsz, popdata2020,
 dir.create("../../data/rds", showWarnings = FALSE)
 write_rds(mpsz_pop2020, "../../data/rds/mpszpop2020.rds")
 ```
+
 2.4 Choropleth Mapping Geospatial Data Using tmap
 
 2.4.1 Plotting a choropleth map quickly by using qtm()
+
 ```{r}
 tmap_mode("plot")
 qtm(mpsz_pop2020, 
     fill = "DEPENDENCY")
 ```
+
 2.4.2 Creating a choropleth map by using tmap’s elements
+
 ```{r}
 tm_shape(mpsz_pop2020)+
   tm_fill("DEPENDENCY", 
@@ -84,17 +96,23 @@ tm_shape(mpsz_pop2020)+
   tm_credits("Source: Planning Sub-zone boundary from Urban Redevelopment Authorithy (URA)\n and Population data from Department of Statistics DOS", 
              position = c("left", "bottom"))
 ```
+
 2.4.2.1 Drawing a base map
+
 ```{r}
 tm_shape(mpsz_pop2020) +
   tm_polygons()
 ```
+
 2.4.2.2 Drawing a choropleth map using tm_polygons()
+
 ```{r}
 tm_shape(mpsz_pop2020)+
   tm_polygons("DEPENDENCY")
 ```
-2.4.2.3 Drawing a choropleth map using tm_fill() and *tm_border()**
+
+2.4.2.3 Drawing a choropleth map using tm_fill() and \*tm_border()\*\*
+
 ```{r}
 tm_shape(mpsz_pop2020)+
   tm_fill("DEPENDENCY")
@@ -102,9 +120,11 @@ tm_shape(mpsz_pop2020)+
   tm_fill("DEPENDENCY") +
   tm_borders(lwd = 0.1,  alpha = 1)
 ```
+
 2.4.3 Data classification methods of tmap
 
 2.4.3.1 Plotting choropleth maps with built-in classification methods
+
 ```{r}
 tm_shape(mpsz_pop2020)+
   tm_fill("DEPENDENCY",
@@ -118,7 +138,9 @@ tm_shape(mpsz_pop2020)+
           style = "equal") +
   tm_borders(alpha = 0.5)
 ```
+
 2.4.3.2 Plotting choropleth map with custome break
+
 ```{r}
 summary(mpsz_pop2020$DEPENDENCY)
 
@@ -127,9 +149,11 @@ tm_shape(mpsz_pop2020)+
           breaks = c(0, 0.60, 0.70, 0.80, 0.90, 1.00)) +
   tm_borders(alpha = 0.5)
 ```
+
 2.4.4 Colour Scheme
 
 2.4.4.1 Using ColourBrewer palette
+
 ```{r}
 tm_shape(mpsz_pop2020)+
   tm_fill("DEPENDENCY",
@@ -144,9 +168,11 @@ tm_shape(mpsz_pop2020)+
           palette = "-Greens") +
   tm_borders(alpha = 0.5)
 ```
+
 2.4.5 Map Layouts
 
 2.4.5.1 Map Legend
+
 ```{r}
 tm_shape(mpsz_pop2020)+
   tm_fill("DEPENDENCY", 
@@ -165,7 +191,9 @@ tm_shape(mpsz_pop2020)+
             frame = FALSE) +
   tm_borders(alpha = 0.5)
 ```
+
 2.4.5.2 Map style
+
 ```{r}
 tm_shape(mpsz_pop2020)+
   tm_fill("DEPENDENCY", 
@@ -174,7 +202,9 @@ tm_shape(mpsz_pop2020)+
   tm_borders(alpha = 0.5) +
   tmap_style("classic")
 ```
+
 2.4.5.3 Cartographic Furniture
+
 ```{r}
 tm_shape(mpsz_pop2020)+
   tm_fill("DEPENDENCY", 
@@ -196,9 +226,11 @@ tm_shape(mpsz_pop2020)+
 
 tmap_style("white")
 ```
+
 2.4.6 Drawing Small Multiple Choropleth Maps
 
 2.4.6.1 By assigning multiple values to at least one of the aesthetic arguments
+
 ```{r}
 tm_shape(mpsz_pop2020)+
   tm_fill(c("YOUNG", "AGED"),
@@ -214,7 +246,9 @@ tm_shape(mpsz_pop2020)+
           palette = list("Blues","Greens")) +
   tm_layout(legend.position = c("right", "bottom"))
 ```
+
 2.4.6.2 By defining a group-by variable in tm_facets()
+
 ```{r}
 tm_shape(mpsz_pop2020) +
   tm_fill("DEPENDENCY",
@@ -229,7 +263,9 @@ tm_shape(mpsz_pop2020) +
             title.size = 20) +
   tm_borders(alpha = 0.5)
 ```
+
 2.4.6.3 By creating multiple stand-alone maps with tmap_arrange()
+
 ```{r}
 youngmap <- tm_shape(mpsz_pop2020)+ 
   tm_polygons("YOUNG", 
@@ -243,7 +279,9 @@ agedmap <- tm_shape(mpsz_pop2020)+
 
 tmap_arrange(youngmap, agedmap, asp=1, ncol=2)
 ```
+
 2.4.7 Mapping Spatial Object Meeting a Selection Criterion
+
 ```{r}
 tm_shape(mpsz_pop2020[mpsz_pop2020$REGION_N=="CENTRAL REGION", ])+
   tm_fill("DEPENDENCY", 
