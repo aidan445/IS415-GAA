@@ -1,1 +1,3 @@
-hello
+```{r}
+pacman::p_load(arrow, lubridate, tidyverse, tmap, sf)
+```
