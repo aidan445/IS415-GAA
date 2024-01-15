@@ -30,8 +30,8 @@
   {
     "objectID": "In-class_Ex/In-class_Ex02/In-class_Ex02.html",
     "href": "In-class_Ex/In-class_Ex02/In-class_Ex02.html",
-    "title": "IS415-GAA",
+    "title": "R for Geospatial Data Science",
     "section": "",
-    "text": "pacman::p_load(arrow, lubridate, tidyverse, tmap, sf)\n\nalso installing the dependency 'assertthat'\n\n\nWarning: unable to access index for repository http://www.stats.ox.ac.uk/pub/RWin/bin/windows/contrib/4.3:\n  cannot open URL 'http://www.stats.ox.ac.uk/pub/RWin/bin/windows/contrib/4.3/PACKAGES'\n\n\npackage 'assertthat' successfully unpacked and MD5 sums checked\npackage 'arrow' successfully unpacked and MD5 sums checked\n\nThe downloaded binary packages are in\n    C:\\Users\\aidan\\AppData\\Local\\Temp\\Rtmpy0cKuA\\downloaded_packages\n\n\n\narrow installed"
+    "text": "Loading of necessary libraries\n\n\nCode\nsuppressMessages(pacman::p_load(arrow, lubridate, tidyverse, tmap, sf))"
   }
 ]

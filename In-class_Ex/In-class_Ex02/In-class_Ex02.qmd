@@ -1,3 +1,88 @@
+Loading of necessary libraries
+
 ```{r}
-pacman::p_load(arrow, lubridate, tidyverse, tmap, sf)
+suppressMessages(pacman::p_load(arrow, lubridate, tidyverse, tmap, sf))
 ```
+
+---
+title: "R for Geospatial Data Science"
+format:
+  html: 
+    code-fold: true
+    code-summary: "Show the code"
+execute:
+  eval: true
+  echo: true
+  warning: false
+editor: visual
+---
+
+Importing Grab-Posisi Dataset
+
+```{r}
+#| eval: false
+df <- read_parquet("../../data/GrabPosisi/part-00000-8bbff892-97d2-4011-9961-703e38972569.c000.snappy.parquet")
+```
+
+Code chunk to convert the data type of *pingtimestamp* from character to date-time. Replaces the characteristics of pingtimestamp into a date-time field.
+
+```{r}
+#| eval: false
+df$pingtimestamp <- as_datetime(df$pingtimestamp)
+```
+
+Extract trip starting locations
+
+-   extracting trips' origin locations
+
+-   derive 3 new columns/variables for weekday, starting hour & day of the month
+
+-   name the output tibble.data.frame *origin_df*
+
+```{r}
+origin_df <- df %>%
+  arrange(pingtimestamp) %>%
+  group_by(trj_id) %>%
+  filter(row_number() == 1) %>%
+  mutate(weekday = lubridate::wday(pingtimestamp, label = TRUE, abbr = TRUE),
+         start_hr = factor(lubridate::hour(pingtimestamp)),
+         day = factor(lubridate::mday(pingtimestamp)))
+
+```
+
+wday 'label' converts 1,2,3,4,5,6,7 into Monday,Tuesday,Wednesday... wday 'abbr' converts Monday,Tuesday,Wednesday... into Mon,Tues,Wed... factor ensures the format 00:22:30 isn't read as 22h30mins but is forced to recognise 00 as the hour, 22 as minute, 30 as seconds.
+
+Extracting trip ending locations
+
+-   code that extracts trip's destination locations
+
+-   deriving weekday, ending hour & day of month columns
+```{r}
+destination_df <- df %>%
+  group_by(trj_id) %>%
+  arrange(desc(pingtimestamp)) %>%
+  filter(row_number()==1) %>%
+  mutate(weekday = wday(pingtimestamp,
+                        label=TRUE,
+                        abbr=TRUE),
+         end_hr = factor(hour(pingtimestamp)),
+         day = factor(mday(pingtimestamp)))
+```
+
+
+\*Because we have multiple entries for same traj_id, we can sort the timings by descending order and see the latest one as the destination
+
+
+Now, we want to save this processed data to use in the future so we don't have to repeat the sorting process again and again.
+```{r}
+write_rds(origin_df, "../../data/rds/origin_df.rds")
+write_rds(destination_df, "../../data/rds/destination_df.rds")
+```
+
+
+And next time, we can just import these new rds files (not excel as they're incapable of storing the data structures we use)
+```{r}
+origin_df <- read_rds("../../data/rds/origin_df.rds")
+destination_df <- read_rds("../../data/rds/destination_df.rds")
+```
+Now that we have these, we can add the line "#| eval: false" at the earlier code chunks where we imported the very big datas. In fact, once we have run the stuff above, we can just hide everything. We can also use "#| echo: false" to render it invisible.
