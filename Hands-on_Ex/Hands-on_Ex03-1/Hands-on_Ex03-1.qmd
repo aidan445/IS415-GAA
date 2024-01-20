@@ -46,7 +46,7 @@ In this hands-on exercise, five R packages will be used, they are:
 Use the code chunk below to install and launch the five R packages.
 
 ```{r}
-install.packages("maptools", repos = "https://packagemanager.posit.co/cran/2023-10-13")
+invisible(install.packages("maptools", repos = "https://packagemanager.posit.co/cran/2023-10-13"))
 pacman::p_load(sf, raster, spatstat, tmap)
 ```
 
@@ -57,16 +57,16 @@ pacman::p_load(sf, raster, spatstat, tmap)
 In this section, [*st_read()*](https://r-spatial.github.io/sf/reference/st_read.html) of **sf** package will be used to import these three geospatial data sets into R. The 3 data are childcare (preschoollocation), coastal outline, and MP14 subzone.
 
 ```{r}
-library(sf)
+invisible(library(sf))
 
-childcare_sf <- st_read("../../data/childcare/ChildCareServices.geojson") %>%
-  st_transform(crs = 3414)
+invisible(childcare_sf <- st_read("../../data/childcare/ChildCareServices.geojson") %>%
+  st_transform(crs = 3414))
   
-sg_sf <- st_read(dsn = "../../data/CostalOutline", 
-                layer = "CostalOutline")
+invisible(sg_sf <- st_read(dsn = "../../data/CostalOutline", 
+                layer = "CostalOutline"))
 
-mpsz_sf <- st_read(dsn = "../../data/MasterPlan2014", 
-                layer = "MP14_SUBZONE_WEB_PL")
+invisible(mpsz_sf <- st_read(dsn = "../../data/MasterPlan2014", 
+                layer = "MP14_SUBZONE_WEB_PL"))
 
 ```
 Before we can use these data for analysis, it is important for us to ensure that they are projected in same projection system.
