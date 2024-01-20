@@ -1,0 +1,58 @@
+Loading of packages
+```{r}
+pacman::p_load(maptools, sf, raster, spatstat, tmap)
+```
+5.4 Spatial Data Wrangling
+
+5.4.1 Importing the spatial data
+```{r}
+library(sf)
+
+childcare_sf <- st_read("../../data/childcare/ChildCareServices.geojson") %>%
+  st_transform(crs = 3414)
+  
+sg_sf <- st_read(dsn = "../../data/CostalOutline", 
+                layer = "CostalOutline")
+
+mpsz_sf <- st_read(dsn = "../../data/MasterPlan2014", 
+                layer = "MP14_SUBZONE_WEB_PL")
+
+```
+
+5.4.2 Mapping the geospatial data sets
+```{r}
+tmap_mode('view')
+tm_shape(childcare_sf)+
+  tm_dots()
+tmap_mode('plot')
+```
+
+5.4.1 Importing the spatial data
+```{r}
+
+
+```
+
+5.4.1 Importing the spatial data
+```{r}
+
+
+```
+
+5.4.1 Importing the spatial data
+```{r}
+
+
+```
+
+5.4.1 Importing the spatial data
+```{r}
+
+
+```
+
+5.4.1 Importing the spatial data
+```{r}
+
+
+```
