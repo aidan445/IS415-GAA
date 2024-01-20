@@ -57,20 +57,18 @@ pacman::p_load(sf, raster, spatstat, tmap)
 In this section, [*st_read()*](https://r-spatial.github.io/sf/reference/st_read.html) of **sf** package will be used to import these three geospatial data sets into R. The 3 data are childcare (preschoollocation), coastal outline, and MP14 subzone.
 
 ```{r}
-childcare_sf <- st_read("../../../data/childcare/ChildCareServices.geojson") %>%
+library(sf)
+
+childcare_sf <- st_read("../../data/childcare/ChildCareServices.geojson") %>%
   st_transform(crs = 3414)
-```
-
-```{r}
-sg_sf <- st_read(dsn = "../../../data/CostalOutline", 
+  
+sg_sf <- st_read(dsn = "../../data/CostalOutline", 
                 layer = "CostalOutline")
-```
 
-```{r}
-mpsz_sf <- st_read(dsn = "../../../data/MasterPlan2014", 
+mpsz_sf <- st_read(dsn = "../../data/MasterPlan2014", 
                 layer = "MP14_SUBZONE_WEB_PL")
-```
 
+```
 Before we can use these data for analysis, it is important for us to ensure that they are projected in same projection system.
 
 > DIY: Using the appropriate sf function you learned in Hands-on Exercise 2, retrieve the referencing system information of these geospatial data.
