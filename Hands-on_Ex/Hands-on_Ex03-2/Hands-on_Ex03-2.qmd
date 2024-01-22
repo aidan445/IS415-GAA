@@ -1,5 +1,6 @@
 Loading of packages
 ```{r}
+#| eval: false
 pacman::p_load(maptools, sf, raster, spatstat, tmap)
 ```
 5.4 Spatial Data Wrangling
