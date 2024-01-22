@@ -1,0 +1,96 @@
+---
+title: Kernal Density Estimation
+format: html
+execute: 
+  eval: true
+  echo: false
+  message: false
+  warning: false
+editor: visual
+---
+
+```{r}
+# | eval: true
+install.packages("maptools", repos = "https://packagemanager.posit.co/cran/2023-10-13")
+```
+Loading of libraries
+```{r}
+pacman::p_load(maptools, sf, raster, spatstat, tmap, tidyverse)
+```
+
+Importing of data
+```{r}
+invisible(library(sf))
+
+invisible(childcare_sf <- st_read("../../data/childcare/ChildCareServices.geojson") %>%
+  st_transform(crs = 3414))
+
+# invisible(
+#   punggol_sf <- st_read(dsn = "../../data/Punggol", 
+#                 layer = "Punggol_CC"))
+
+# invisible(sg_sf <- st_read(dsn = "../../data/CostalOutline", 
+#                 layer = "CostalOutline"))
+
+invisible(mpsz_sf <- st_read(dsn = "../../data/MasterPlan2014", 
+                layer = "MP14_SUBZONE_WEB_PL"))
+
+```
+
+Deriving Costal Outline from MPSZ MasterPlan Zone
+```{r}
+sg_sf <- mpsz_sf %>%
+  st_union()
+
+```
+Test Plot
+```{r}
+plot(sg_sf)
+```
+
+Creating ppp objects: sf method
+```{r}
+childcare_ppp <- as.ppp(childcare_sf)
+```
+```{r}
+summary(childcare_ppp)
+```
+
+To avoid overlapping points on the same place, must split them partially:
+```{r}
+any(duplicated(childcare_ppp))
+```
+
+Creating the owin object: sf method
+*all as.(functions) need to use sf layers, i.e. running on sp doesn't work
+```{r}
+sg_owin <- as.owin(sg_sf)
+```
+
+```{r}
+childcareSG_ppp = childcare_ppp[sg_owin]
+```
+
+```{r}
+
+```
+
+```{r}
+pg <- mpsz_sf %>%
+  filter(PLN_AREA_N == "PUNGGOL")
+tm <- mpsz_sf %>%
+  filter(PLN_AREA_N == "TAMPINES")
+ck <- mpsz_sf %>%
+  filter(PLN_AREA_N == "CHOA CHU KANG")
+jw <- mpsz_sf %>%
+  filter(PLN_AREA_N == "JURONG WEST")
+```
+
+Plotting these target areas
+```{r}
+par(mfrow=c(2,2))
+plot(pg, main = "Punggol")
+plot(tm, main = "Tampines")
+plot(ck, main = "Choa Chu Kang")
+plot(jw, main = "Jurong West")
+```
