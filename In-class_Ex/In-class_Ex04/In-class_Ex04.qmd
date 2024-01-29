@@ -1,0 +1,71 @@
+**In-class Exercise 4: Spatial Weights**
+
+```{r}
+pacman::p_load(sf, spdep, tmap, tidyverse, knitr, GWmodel)
+```
+
+```{r}
+hunan <- st_read(dsn = "../../data/Hunan", 
+                 layer = "Hunan")
+hunan2012 <- read_csv("../../data/Hunan/Hunan_2012.csv")
+
+hunan <- left_join(hunan,hunan2012)%>%
+  select(1:4, 7, 15)
+# 'by: ' attribute doesn't need to be set here to define the unique identifier for left join, as the 2 data sets share a common name identifier already 
+```
+
+```{r}
+#| fig-width: 12
+#| fig-height: 8
+
+basemap <- tm_shape(hunan) +
+  tm_polygons() +
+  tm_text("NAME_3", size=0.5)
+
+gdppc <- qtm(hunan, "GDPPC")
+tmap_arrange(basemap, gdppc, asp=1, ncol=2)
+
+```
+
+*qtf is a fast way to fill a shape. But tm_fill can be customised.*
+
+```{r}
+wm_q <- poly2nb(hunan, queen=TRUE)
+summary(wm_q)
+
+```
+
+```{r}
+longitude <- map_dbl(hunan$geometry, ~st_centroid(.x)[[1]])
+
+latitude <- map_dbl(hunan$geometry, ~st_centroid(.x)[[2]])
+
+coords <- cbind(longitude, latitude)
+```
+
+```{r}
+k1 <- knn2nb(knearneigh(coords))
+
+k1dists <- unlist(nbdists(k1, coords, longlat = TRUE))
+summary(k1dists)
+```
+
+```{r}
+wm_d62 <- dnearneigh(coords, 0, 62, longlat = TRUE)
+wm_d62
+
+```
+
+# Working with GWSS
+```{r}
+hunan_sp <- hunan %>% as_Spatial()
+```
+
+```{r}
+gwstat <- gwss(data = hunan_sp,
+               vars = "GDPPC",
+               bw = 6,
+               kernel = "bisquare",
+               adaptive = TRUE,
+               longlat = T)
+```
