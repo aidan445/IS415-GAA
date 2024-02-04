@@ -1,0 +1,165 @@
+## **Take-home Exercise 01: Application of Spatial Point Patterns Analysis to discover the geographical distribution of Grab hailing services in Singapore**
+
+#### 1.0 Introduction & Objectives
+
+The goal of this exercise will be to determine and then visualise the spatial distribution of where Grab rides are hailed from in Singapore.
+
+#### 2.0 Importing Packages
+
+```{r}
+pacman::p_load(sf, tidyverse, tmap, sdpep, knitr, spNetwork, classInt, viridis, ggplot2, leaflet, arrow, lubridate, gridExtra, patchwork)
+
+install.packages("maptools", repos = "https://packagemanager.posit.co/cran/2023-10-13")
+
+```
+
+#### 3.0 Data
+
+| Geospatial                                                 | Aspatial             |
+|------------------------------------------------------------|----------------------|
+| Road Data from OpenStreetMap \[Geofabrik.de\]              | Grab-Posisi \[Grab\] |
+| Master Plan 2019 Subzone Boundary (No Sea) \[Data.gov.sg\] |                      |
+|                                                            |                      |
+
+# 3.1 Importing Data
+
+# Master Plan 2019
+```{r}
+mpsz_sf <- st_read(dsn = "../../data/mpsz-2019",
+                  layer = "MPSZ-2019")
+```
+
+# Grab-Posisi (adapted from In-class_Excercise 2)
+```{r}
+# grab <-  read_parquet("../../data/GrabPosisi/part-00000-8bbff892-97d2-4011-9961-703e38972569.c000.snappy.parquet")
+
+origin_grab <- read_rds("../../data/rds/origin_df.rds")
+destination_grab <- read_rds("../../data/rds/destination_df.rds")
+
+
+```
+
+# geofabrik.de's OpenStreetMap Road Data
+```{r}
+road_84 <- st_read(dsn="../../data/OpenStreetMap", layer="gis_osm_roads_free_1")
+```
+
+
+# 4.0 Data Treatment
+
+# 4.1 Convert all map data to SVY21 CRS
+
+# Setting a handy variable to reference as parameter while converting to SVY21
+```{r}
+crs_svy21 <- "EPSG:3414"
+```
+
+# Converting Master Plan 2019 to SVY21 CRS
+```{r}
+mpsz_21 <- st_transform(mpsz_sf, crs_svy21)
+```
+
+# Converting OSM Roads Data to SVY21 CRS
+```{r}
+roads_21 <- st_transform(road_84, crs_svy21)
+```
+
+# Checking that CRS for both are as expected
+```{r}
+st_crs(roads_21)
+st_crs(mpsz_21)
+```
+
+# 4.2 Ensuring no invalid geometries before intersecting
+
+# Checking if Road data contains invalid geometry
+```{r}
+st_is_valid(roads_21)
+# st_make_valid(roads_21)
+```
+
+# First Attempt to correct invalid geometry in Master Plan 2019
+```{r}
+st_make_valid(mpsz_21)
+st_is_valid(mpsz_21)
+```
+Plotting of the invalid geometries reveals outer islands as the uncorrected geometries; hence they must be removed.
+
+
+# Identify and extract the outer islands
+```{r}
+outer_islands <- subset(mpsz_21, !st_is_valid(mpsz_21))
+```
+
+# Use st_union to merge geometries of mpsz and outer islands
+```{r}
+merged_geometries <- st_union(mpsz_21, outer_islands)
+```
+
+# Use st_difference to remove the overlap and get the coastal boundary without outer islands
+```{r}
+coastal_boundary <- st_difference(mpsz_21, merged_geometries)
+```
+
+# Second  Attempt to correct invalid geometry in Master Plan 2019
+```{r}
+st_is_valid(coastal_boundary)
+```
+No more false geometries.
+
+# 4.3 Reducing Road Data to Singapore area only
+
+# Define a delimiting area bounded by a bounding box formed from coastal_boundary
+```{r}
+bbox <- st_bbox(coastal_boundary)
+```
+
+# Refining Road to only include area bounded by Master Plan 2019's bounding box
+```{r}
+roads_sg <- st_intersection(roads_21, st_as_sfc(bbox))
+```
+
+# 4.4 Intersection of Singapore Road Data with Master Plan 2019's map
+
+# Overlay Singapore Roads data on Master Plan 2019's map
+Error after here
+```{r}
+# map_sg <- roads_sg %>% st_intersection(coastal_boundary)
+```
+
+# Purge map of irrelevant/inconsequential roads, including nulls
+```{r}
+# map_sg <- map_sg  %>% filter(fclass %in% c("primary", "secondary", "tertiary", "motorway", "trunk"), !is.na(name))
+```
+
+# 4.5 Overlay of Grab-Posisi data for overlay
+
+# Converting ride origin points to sf dataframe
+```{r}
+origin_grab_sf <- st_as_sf(origin_grab, coords = c("rawlng", "rawlat"), crs = 4326)
+```
+
+# Converting ride destination points to sf dataframe
+```{r}
+destination_grab_sf <- st_as_sf(destination_grab, coords = c("rawlng", "rawlat"), crs = 4326)
+```
+
+# Converting origin and destination sf dataframes into SVY21 CRS
+```{r}
+origin_grab_sf <- st_transform(origin_grab_sf, crs_svy21)
+```
+```{r}
+destination_grab_sf <- st_transform(destination_grab_sf, crs_svy21)
+```
+
+# Plotting of Grab ride origin & destination points on Road map, together on Master Plan map
+```{r}
+# tmap_mode('view')
+# > tm_shape(map_sg) +
+# +   tm_borders() + 
+# +   tm_shape(roads_sg_valid) +
+# +   tm_lines() +
+# +   tm_shape(origin_grab_sf) +
+# +   tm_dots()
+```
+
