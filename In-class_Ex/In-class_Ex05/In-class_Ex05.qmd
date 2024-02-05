@@ -1,0 +1,45 @@
+## In-class Exercise 5
+
+Loading of libraries
+```{r}
+pacman::p_load(sfdep, sf, tmap, tidyverse)
+```
+
+Importing of data
+```{r}
+hunan <- st_read(dsn = "../../data/Hunan", 
+                 layer = "Hunan")
+```
+```{r}
+hunan2012 <- read_csv("../../data/Hunan/Hunan_2012.csv")
+```
+
+**For Take-home_Ex02, must make sure the 2 data sets have the same names to join on (check the name value closely also e.g. Anxiang in hunan's Name3)
+```{r}
+hunan <- left_join(hunan,hunan2012)%>%
+  select(1:4, 7, 15)
+```
+
+```{r}
+basemap <- tm_shape(hunan) +
+  tm_polygons() +
+  tm_text("NAME_3", size=0.5)
+
+gdppc <- qtm(hunan, "GDPPC")
+tmap_arrange(basemap, gdppc, asp=1, ncol=2)
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+
+```
+
+```{r}
+
+
+```

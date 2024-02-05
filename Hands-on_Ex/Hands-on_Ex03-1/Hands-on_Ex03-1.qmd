@@ -66,6 +66,7 @@ invisible(mpsz_sf <- st_read(dsn = "../../data/MasterPlan2014",
                 layer = "MP14_SUBZONE_WEB_PL"))
 
 ```
+
 Before we can use these data for analysis, it is important for us to ensure that they are projected in same projection system.
 
 > DIY: Using the appropriate sf function you learned in Hands-on Exercise 2, retrieve the referencing system information of these geospatial data.
@@ -128,12 +129,16 @@ tm_shape(childcare_sf)+
 Alternatively, we can prepare a pin map by using this code chunk:
 
 ```{r}
+#| eval: false
+#| echo: true
 tmap_mode('view')
 tm_shape(childcare_sf)+
   tm_dots()
 ```
 
 ```{r}
+#| eval: false
+#| echo: true
 tmap_mode('plot')
 ```
 
@@ -152,14 +157,20 @@ sg <- as_Spatial(sg_sf)
 Show the information of these 3 Spatial\* classes
 
 ```{r}
+#| eval: false
+#| echo: true
 childcare
 ```
 
 ```{r}
+#| eval: false
+#| echo: true
 mpsz
 ```
 
 ```{r}
+#| eval: false
+#| echo: true
 sg
 ```
 
@@ -177,10 +188,14 @@ sg_sp <- as(sg, "SpatialPolygons")
 Let's display the sp objects properties
 
 ```{r}
+#| eval: false
+#| echo: true
 childcare_sp
 ```
 
 ```{r}
+#| eval: false
+#| echo: true
 sg_sp
 ```
 
@@ -206,12 +221,16 @@ childcare_ppp
 Now, let us plot childcare_ppp and examine the different.
 
 ```{r}
+#| eval: false
+#| echo: true
 plot(childcare_ppp)
 ```
 
 You can take a quick look at the summary statistics of the newly created ppp object by using the code chunk below.
 
 ```{r}
+#| eval: false
+#| echo: true
 summary(childcare_ppp)
 ```
 

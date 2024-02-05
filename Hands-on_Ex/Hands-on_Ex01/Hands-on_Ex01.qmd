@@ -24,9 +24,12 @@ mpsz <- st_read(dsn = "data/geospatial",
 Plotting the Geospatial Data
 
 ```{r}
+#| eval: false
+#| echo: true
 plot(mpsz)
 ```
-______________________________________________
+
+------------------------------------------------------------------------
 
 1.4.1 Importing polygon feature data in shapefile format
 
@@ -34,65 +37,105 @@ ______________________________________________
 mpsz = st_read(dsn = "data/geospatial", 
                   layer = "MP14_SUBZONE_WEB_PL")
 ```
-______________________________________________
+
+------------------------------------------------------------------------
+
 1.4.2 Importing polyline feature data in shapefile form
+
 ```{r}
 cyclingpath = st_read(dsn = "data/geospatial", 
                          layer = "CyclingPathGazette")
 ```
-______________________________________________
+
+------------------------------------------------------------------------
+
 1.4.3 Importing GIS data in kml format
+
 ```{r}
 preschool = st_read("data/geospatial/PreSchoolsLocation.kml")
 ```
-______________________________________________
+
+------------------------------------------------------------------------
+
 1.5.1 Working with st_geometry()
+
 ```{r}
+#| eval: false
+#| echo: true
 st_geometry(mpsz)
 ```
-______________________________________________
+
+------------------------------------------------------------------------
+
 1.5.2 Working with glimpse()
+
 ```{r}
+#| eval: false
+#| echo: true
 glimpse(mpsz)
 ```
-______________________________________________
+
+------------------------------------------------------------------------
+
 1.5.3 Working with head()
+
 ```{r}
+#| eval: false
+#| echo: true
 head(mpsz, n=5)  
 ```
-______________________________________________
+
+------------------------------------------------------------------------
+
 1.6 Plotting the Geospatial Data
+
 ```{r}
+#| eval: false
+#| echo: true
 plot(mpsz)
 plot(st_geometry(mpsz))
 plot(mpsz["PLN_AREA_N"])
 
 ```
-______________________________________________
+
+------------------------------------------------------------------------
+
 1.7.1 Assigning EPSG code to a simple feature data frame
+
 ```{r}
 st_crs(mpsz)
 ```
+
 ```{r}
 mpsz3414 <- st_set_crs(mpsz, 3414)
 ```
+
 ```{r}
 st_crs(mpsz3414)
 ```
-______________________________________________
+
+------------------------------------------------------------------------
+
 1.7.2 Transforming the projection of preschool from wgs84 to svy21.
+
 ```{r}
 preschool3414 <- st_transform(preschool, 
                               crs = 3414)
 ```
-______________________________________________
+
+------------------------------------------------------------------------
+
 1.8.1 Importing the aspatial data
+
 ```{r}
 listings <- read_csv("data/aspatial/listings.csv")
 list(listings) 
 ```
-______________________________________________
+
+------------------------------------------------------------------------
+
 1.8.2 Creating a simple feature data frame from an aspatial data frame
+
 ```{r}
 listings_sf <- st_as_sf(listings, 
                        coords = c("longitude", "latitude"),
@@ -100,16 +143,22 @@ listings_sf <- st_as_sf(listings,
   st_transform(crs = 3414)
 glimpse(listings_sf)
 ```
-______________________________________________
+
+------------------------------------------------------------------------
+
 1.9.1 Buffering
+
 ```{r}
 buffer_cycling <- st_buffer(cyclingpath, 
                                dist=5, nQuadSegs = 30)
 buffer_cycling$AREA <- st_area(buffer_cycling)
 sum(buffer_cycling$AREA)
 ```
-______________________________________________
+
+------------------------------------------------------------------------
+
 1.9.2 Point-in-polygon count
+
 ```{r}
 mpsz3414$`PreSch Count`<- lengths(st_intersects(mpsz3414, preschool3414))
 summary(mpsz3414$`PreSch Count`)
@@ -117,14 +166,18 @@ top_n(mpsz3414, 1, `PreSch Count`)
 ```
 
 Solution:
+
 ```{r}
 mpsz3414$Area <- mpsz3414 %>%
   st_area()
 mpsz3414 <- mpsz3414 %>%
   mutate(`PreSch Density` = `PreSch Count`/Area * 1000000)
 ```
-______________________________________________
+
+------------------------------------------------------------------------
+
 1.10 Exploratory Data Analysis (EDA)
+
 ```{r}
 hist(mpsz3414$`PreSch Density`)
 ggplot(data=mpsz3414, 
@@ -137,7 +190,9 @@ ggplot(data=mpsz3414,
       x = "Pre-school density (per km sq)",
       y = "Frequency")
 ```
+
 Solution:
+
 ```{r}
 ggplot(data=mpsz3414, 
        aes(y = `PreSch Count`, 

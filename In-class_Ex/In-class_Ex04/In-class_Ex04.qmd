@@ -57,6 +57,7 @@ wm_d62
 ```
 
 # Working with GWSS
+
 ```{r}
 hunan_sp <- hunan %>% as_Spatial()
 ```
