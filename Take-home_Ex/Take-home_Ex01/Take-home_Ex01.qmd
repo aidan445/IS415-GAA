@@ -7,7 +7,7 @@ The goal of this exercise will be to determine and then visualise the spatial di
 #### 2.0 Importing Packages
 
 ```{r}
-#| eval: false
+#| eval: true
 #| echo: true
 pacman::p_load(sf, tidyverse, tmap, sdpep, knitr, spNetwork, classInt, viridis, ggplot2, leaflet, arrow, lubridate, gridExtra, patchwork)
 
