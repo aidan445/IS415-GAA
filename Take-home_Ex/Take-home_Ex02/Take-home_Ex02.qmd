@@ -1,0 +1,221 @@
+##### **Take-home Exercise 2: Application of Spatial and Spatio-temporal Analysis Methods to Discover the Distribution of Dengue Fever in Tainan City, Taiwan**
+
+------------------------------------------------------------------------
+
+#### 1.0 Background
+
+The last significant outbreak of dengue fever in Taiwan was recorded in 2015, with 43,000 dengue cases and 228 deaths. In 2023, 26,703 cases were recorded with 25K being from Tainan City.
+
+#### 1.1 Objectives & Approach
+
+The goal of this exercise is to determine if the distribution of dengue cases in Tainan are spatially and temporally dependent, and if so, to detect the locations of the clusters.
+
+We will:
+
+-   visualise the data using mapping tools,
+
+-   conduct global & local spatial autocorrelation analysis,
+
+-   perform emerging hotspot analysis.
+
+The areas selected are the Tainan City counties D01, D02, D04, D06, D07, D08, D32 & D39 during the epidemiology week 31-50 of 2023.\
+
+------------------------------------------------------------------------
+
+#### 2.0 Package Installation
+
+```{r}
+pacman::p_load(sfdep, sf, tidyverse, tmap, dplyr, plotly, lubridate)
+```
+
+#### 2.1 Data Preparation
+
++---------------------+-------------+-------------------------------------------------------------+
+| Data                | Type        | Description                                                 |
++=====================+=============+=============================================================+
+| TAIWAN_VILLAGE_2020 | Geospatial\ | Geospatial data of Taiwan village boundaries                |
+|                     | .shp        |                                                             |
++---------------------+-------------+-------------------------------------------------------------+
+| Dengue_Daily.csv    | Aspatial\   | Aspatial data of reported dengue cases in Taiwan since 1998 |
+|                     | .csv        |                                                             |
++---------------------+-------------+-------------------------------------------------------------+
+
+### 2.1.0 TAINAN_VILLAGE Data
+
+First-time load of the geospatial data and identifying its CRS.
+
+```{r}
+village_sf <- st_read(dsn = "../../data/TaiwanVillage",
+                      layer = "TAINAN_VILLAGE")
+st_crs(village_sf)
+```
+
+We see that the geospatial data is using the TWD97 EPSG 3824 CRS.
+
+Inspecting the data table, we see that the columns for COUNTYNAME, COUNTYID & COUNTYCODE all point to the same "臺南市/Tainan City" reference, so we can drop these values to reduce the clutter. (NOTE also removed as it has no impact on our analysis)
+
+```{r}
+prunedvillage_sf <- village_sf %>%
+  select(-COUNTYNAME, -COUNTYID, -COUNTYCODE, -NOTE)
+```
+
+We can now select only the counties of D01, D02, etc. previously specified.
+
+```{r}
+prunedvillage_sf <- prunedvillage_sf %>%
+  filter(TOWNID %in% c("D01", "D02", "D04", "D06", "D07", "D08", "D32", "D39"))
+```
+
+To speed up future referencing of this dataframe, we can save it as an RDS.
+
+```{r}
+write_rds(prunedvillage_sf, "../../data/TaiwanVillage/prunedvillage_sf.rds")
+```
+
+```{r}
+prunedvillage_sf <-  read_rds("../../data/TaiwanVillage/prunedvillage_sf.rds")
+```
+
+### 2.1.1 Dengue_Daily.csv Data
+
+First-time load of the aspatial data.
+
+```{r}
+dengue_sf <- read_csv("../../data/TaiwanDengue/Dengue_Daily.csv")
+```
+
+*The output of the read_csv() command indicates that R recognises "發病日" as a date object, so we don't have to transform it.*
+
+As we are only interested in the count of the dengue cases during a particular date window and their location (Tainan City only), we can select only the relevant columns from the table, namely the date of onset, town name, village name and the corresponding coordinate pair.
+
+*\*The dates specified by epidemiology week are from 2023-08-01 to 2023-12-16*
+
+```{r}
+pruneddengue_sf <- dengue_sf %>%
+  filter(感染縣市 == "台南市" & 發病日 >= as.Date("2023-08-01") & 發病日 <= as.Date("2023-12-16")) %>%
+  select(發病日, 居住鄉鎮, 居住村里, 最小統計區中心點X, 最小統計區中心點Y)
+```
+
+I will also rename the chosen columns to their English translations to simplify reading of the columns.We can use the same naming convention for town and village names as in the geospatial dataframe to make the columns more consistent.
+
+```{r}
+pruneddengue_sf <- pruneddengue_sf %>%
+  rename('Date of Onset' = 發病日,
+         TOWNNAME = 居住鄉鎮,
+         VILLNAME = 居住村里,
+         X_Coord = 最小統計區中心點X,
+         Y_Coord = 最小統計區中心點Y)
+```
+
+This yields a much tidier dataset to work with, but there are still a dozen or so null values under X & Y_Coords, which we can remove. (Null values for village name are still fine as they have their coordinate pair to be used for mapping)
+
+```{r}
+pruneddengue_sf <- pruneddengue_sf %>%
+  filter(X_Coord != "None" & Y_Coord != "None")
+```
+
+Finally, we see that the X & Y_Coords are not compatible with the village geospatial polygon data:
+
+```{r}
+class(pruneddengue_sf$X_Coord)
+class(pruneddengue_sf$Y_Coord)
+```
+
+In fact they are not even numerical data.
+
+To address this, we can convert it into an sf object just like prunedvillage_sf on the same CRS 3824.
+
+```{r}
+pruneddengue_sf$X_Coord <- as.numeric(pruneddengue_sf$X_Coord)
+pruneddengue_sf$Y_Coord <- as.numeric(pruneddengue_sf$Y_Coord)
+
+pruneddengue_sf <- st_as_sf(pruneddengue_sf, coords = c("X_Coord", "Y_Coord"), crs = 3824)
+```
+
+Now that this has been standardised, we can save pruneddengue_sf as an RDS also.
+
+```{r}
+write_rds(pruneddengue_sf, "../../data/TaiwanDengue/pruneddengue_sf.rds")
+```
+
+```{r}
+pruneddengue_sf <-  read_rds("../../data/TaiwanDengue/pruneddengue_sf.rds")
+```
+
+### 2.1.2 Visualising the Separate Datasets
+
+The map of our chosen area of Tainan City:
+
+```{r}
+tmap_mode('plot')
+tm_shape(prunedvillage_sf) +
+  tm_borders() +
+  tm_fill() +
+  tm_layout(title = "Study Area Layer")
+```
+
+The map of dengue cases:
+
+```{r}
+tmap_mode('plot')
+tm_shape(pruneddengue_sf) +
+  tm_dots() +
+  tm_layout(title = "Dengue Cases")
+```
+
+#### 3.0 Overlaying Dengue Cases onto Study Layer
+
+We perform the first joining action on the 2 sf dataframes.
+
+```{r}
+# dengue_on_village <- st_intersection(prunedvillage_sf, pruneddengue_sf)
+```
+
+This required a very long execution time so I am choosing to save it as an RDS as well to avoid future computation.
+
+```{r}
+write_rds(dengue_on_village, "../../data/TaiwanVillage/dengue_on_village.rds")
+```
+
+```{r}
+dengue_on_village <- read_rds("../../data/TaiwanVillage/dengue_on_village.rds")
+```
+
+Plotting this dengue layer on the map of our study area.
+
+```{r}
+tm_shape(prunedvillage_sf) + 
+  tm_polygons("TOWNID") +
+  tm_shape(dengue_on_village) +
+  tm_dots(col = "black", size = 0.0001)
+```
+
+While this shows us the distribution of all the dengue cases in our study area, it is not very clear or intuitive where the highest-hit sectors are due to all the dots.
+
+So we need to group the count of dengue cases
+
+We can solve this by creating a choropleth map that will show us a heatmap of the total dengue cases.
+
+```{r}
+tm_shape(mpsz_pop2020)+
+  tm_fill("DEPENDENCY", 
+          style = "quantile", 
+          palette = "Blues",
+          title = "Dependency ratio") +
+  tm_layout(main.title = "Distribution of Dependency Ratio by planning subzone",
+            main.title.position = "center",
+            main.title.size = 1.2,
+            legend.height = 0.45, 
+            legend.width = 0.35,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", size = 2) +
+  tm_scale_bar() +
+  tm_grid(alpha =0.2) +
+  tm_credits("Source: Planning Sub-zone boundary from Urban Redevelopment Authorithy (URA)\n and Population data from Department of Statistics DOS", 
+             position = c("left", "bottom"))
+```
+
+However the usefulness of knowing the total cases per sector is limited. It may only reflect that the population or population densities in these sectors are relatively high, or that the transmission vectors are more significant in these sectors.
+
+To see the true presence of dengue cases, we can view the cases p
