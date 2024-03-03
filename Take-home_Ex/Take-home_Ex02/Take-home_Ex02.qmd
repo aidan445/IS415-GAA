@@ -2,7 +2,7 @@
 
 ------------------------------------------------------------------------
 
-### 1.0 Background
+## 1.0 Background
 
 The last significant outbreak of dengue fever in Taiwan was recorded in 2015, with 43,000 dengue cases and 228 deaths. In 2023, 26,703 cases were recorded with 25K being from Tainan City.
 
@@ -22,10 +22,10 @@ The areas selected are the Tainan City counties D01, D02, D04, D06, D07, D08, D3
 
 ------------------------------------------------------------------------
 
-### 2.0 Package Installation
+## 2 Package Installation
 
 ```{r}
-pacman::p_load(sfdep, sf, tidyverse, tmap, dplyr, plotly, lubridate, spdep)
+pacman::p_load(sfdep, sf, tidyverse, tmap, dplyr, plotly, lubridate, spdep, outbreaks)
 ```
 
 ### 2.1 Data Preparation
@@ -163,7 +163,7 @@ tm_shape(pruneddengue_sf) +
   tm_layout(title = "Dengue Cases")
 ```
 
-### 3.0 Overlaying Dengue Cases onto Study Layer
+## 3 Overlaying Dengue Cases onto Study Layer
 
 ### 3.1 Intersection of prunedvillage_sf & pruneddengue_sf
 
@@ -278,15 +278,16 @@ tm_shape(dengue_conc) +
   tm_scale_bar() +
   tm_grid(alpha =0.2)
 ```
+
 And we'll save dengue_conc as an RDS for future reference.
 
 ```{r}
 # write_rds(dengue_conc, "../../data/TaiwanVillage/dengue_conc.rds")
 ```
+
 ```{r}
 dengue_conc <- read_rds("../../data/TaiwanVillage/dengue_conc.rds")
 ```
-
 
 However the usefulness of knowing the total cases per sector is limited. It may only reflect that the population or population densities in these sectors are relatively high, or that the transmission vectors are more significant in these sectors.
 
@@ -444,13 +445,15 @@ tm_shape(dengue_dec) +
 
 
 ```
+
 It appears that cases peaked in September and October, with their spread across many villages. When cases dipped in November and December, they were more concentrated in a few villages.
 
-### 4.0 Global Spatial Autocorrelation Analysis
+## 4 Global Spatial Autocorrelation Analysis
 
 ### 4.1 Deriving contiguity weights: Queen's method
 
 #### 4.1.0 Simplifying the Data
+
 As this component of the analysis is only concerned with spatial properties, we can revert to the original pruneddengue_sf dataframe.To prevent conflicts with the previous dataframes, we will create a new dataframe and regroup the dengue cases by village, performing the same treatment as above.
 
 ```{r}
@@ -461,15 +464,18 @@ pruneddengue_1 <- pruneddengue_sf %>%
 ```
 
 We can now join the data again and impute the NA values with 0, as missing values in this context would mean that there were no dengue cases in that village.
+
 ```{r}
 dengue_presc <- st_join(prunedvillage_sf, pruneddengue_1)
 dengue_presc$Cases_per_village[is.na(dengue_presc$Cases_per_village)] <- 0
 ```
 
 We save this as an RDS for future use.
+
 ```{r}
 # write_rds(dengue_presc, "../../data/TaiwanVillage/dengue_presc.rds")
 ```
+
 ```{r}
 dengue_presc <- read_rds("../../data/TaiwanVillage/dengue_presc.rds")
 ```
@@ -482,10 +488,13 @@ wm_q <- dengue_presc %>%
          wt = st_weights(nb, style = "W"),
          .before = 1)
 ```
+
 Inspecting the dataframe:
+
 ```{r}
 glimpse(wm_q)
 ```
+
 ### 4.2 Computing Global Moran's I
 
 ```{r}
@@ -504,11 +513,15 @@ global_moran_test(wm_q$Cases_per_village,
                   wm_q$wt)
 
 ```
+
 ### 4.4 Performing Global Moran's I Permutation Test
+
 To ensure reproducible results, we specify the seed used.
+
 ```{r}
 set.seed(1234)
 ```
+
 ```{r}
 global_moran_perm(wm_q$Cases_per_village,
                   wm_q$nb,
@@ -516,12 +529,14 @@ global_moran_perm(wm_q$Cases_per_village,
                   nsim = 99)
 
 ```
+
 ### 4.5 Analysis of Global Moran's I Test Results
+
 We see that the p-value is less than 0.05, so we can reject the null hypothesis that there is no spatial autocorrelation in the distribution of dengue cases in Tainan City.
 
 In addition, because Moran's I statistic is positive, we can infer that there are signs of clustering in the distribution of dengue cases.
 
-### 5.0 Local Spatial Autocorrelation Analysis
+## 5 Local Spatial Autocorrelation Analysis
 
 ### 5.1 Computing Local Moran's I
 
@@ -544,3 +559,185 @@ tm_shape(lisa) +
   tm_layout(main.title = "Local Moran's I of Cases per Village",
             main.title.size = 0.7)
 ```
+
+### 5.3 Visualising p-value of Local Moran's I
+
+```{r}
+tmap_mode("plot")
+tm_shape(lisa) +
+  tm_fill("p_ii_sim") + 
+  tm_borders(alpha = 0.5) +
+  tm_layout(main.title = "p-value of Local Moran's I",
+            main.title.size = 0.7)
+```
+
+### 5.4 Visualising Local Moran's I & p-value
+
+```{r}
+tmap_mode("plot")
+map1 <- tm_shape(lisa) +
+  tm_fill("ii") + 
+  tm_borders(alpha = 0.5) +
+  tm_view(set.zoom.limits = c(6,8)) +
+  tm_layout(main.title = "Local Moran's I of Cases per Village",
+            main.title.size = 0.7)
+
+map2 <- tm_shape(lisa) +
+  tm_fill("p_ii",
+          breaks = c(0, 0.001, 0.01, 0.05, 1),
+              labels = c("0.001", "0.01", "0.05", "Not sig")) + 
+  tm_borders(alpha = 0.5) +
+  tm_layout(main.title = "p-value of Local Moran's I",
+            main.title.size = 0.7)
+
+tmap_arrange(map1, map2, ncol = 2)
+```
+
+### 5.5 Visualising LISA Map
+
+```{r}
+lisa_sig <- lisa  %>%
+  filter(p_ii < 0.05)
+tmap_mode("plot")
+tm_shape(lisa) +
+  tm_polygons() +
+  tm_borders(alpha = 0.5) +
+tm_shape(lisa_sig) +
+  tm_fill("mean") + 
+  tm_borders(alpha = 0.4) 
+
+```
+
+## 6 Hot & Cold Spot Area Analysis (HCSA)
+
+### 6.1 Computing local Gi\* statistics
+
+```{r}
+wm_idw <- dengue_presc  %>%
+  mutate(nb = st_contiguity(geometry),
+         wts = st_inverse_distance(nb, geometry,
+                                   scale = 1,
+                                   alpha = 1),
+         .before = 1)
+```
+
+```{r}
+HCSA <- wm_idw %>% 
+  mutate(local_Gi = local_gstar_perm(
+    Cases_per_village, nb, wt, nsim = 99),
+         .before = 1) %>%
+  unnest(local_Gi)
+HCSA
+```
+
+### 6.2 Visualising Gi\*
+
+```{r}
+tmap_mode("plot")
+tm_shape(HCSA) +
+  tm_fill("gi_star") + 
+  tm_borders(alpha = 0.5) +
+  tm_view(set.zoom.limits = c(6,8))
+```
+
+### 6.3 Visualising p-value of HCSA
+
+```{r}
+tmap_mode("plot")
+tm_shape(HCSA) +
+  tm_fill("p_sim") + 
+  tm_borders(alpha = 0.5)
+```
+
+### 6.4 Visualising Local HCSA
+
+```{r}
+tmap_mode("plot")
+map1 <- tm_shape(HCSA) +
+  tm_fill("gi_star") + 
+  tm_borders(alpha = 0.5) +
+  tm_view(set.zoom.limits = c(6,8)) +
+  tm_layout(main.title = "Gi* of Dengue Cases",
+            main.title.size = 0.8)
+
+map2 <- tm_shape(HCSA) +
+  tm_fill("p_value",
+          breaks = c(0, 0.001, 0.01, 0.05, 1),
+              labels = c("0.001", "0.01", "0.05", "Not sig")) + 
+  tm_borders(alpha = 0.5) +
+  tm_layout(main.title = "p-value of Gi*",
+            main.title.size = 0.8)
+
+tmap_arrange(map1, map2, ncol = 2)
+
+```
+
+### 6.5 Visualising Hot & Cold Spot Areas
+
+```{r}
+HCSA_sig <- HCSA  %>%
+  filter(p_sim < 0.05)
+tmap_mode("plot")
+tm_shape(HCSA) +
+  tm_polygons() +
+  tm_borders(alpha = 0.5) +
+tm_shape(HCSA_sig) +
+  tm_fill("gi_star") + 
+  tm_borders(alpha = 0.4)
+```
+
+![Google Maps View of Tainan City](satelite_tainan.png){fig-alt="satelite_view" fig-align="center"}
+
+Comparing the hotspot-coldspot map alongside a rough overview of the same area on Google Maps, we can see that the coldspot to the north and west (south of the Zeng Wun River) is located in a less urban area, and zooming in reveals extensive farmland. 
+
+However the hotspot near the central Yan Shui river Yong Kang district can be observed to be relatively more urbanised, and zooming in reveals large water bodies surrounded by isolated areas adjacent to the urban hinterlands. 
+
+Similarly the hotspot to the east is a forested area with various water bodies nearby, surrounded by urban areas. 
+
+These observations are consistent with the known breeding grounds of the Aedes mosquito. 
+
+## 7 Emerging Hotspot Analysis
+
+### 7.1 Creating a Time Series Cube
+
+#### 7.1.1 Getting the Data Columns
+
+Our time data is located inside pruneddengue_sf, but this is not in the week integer format that we need. So first we must convert this.
+
+```{r}
+week_dengue <- pruneddengue_sf %>%
+  mutate(Week = epiweek(`Date of Onset`)) %>%
+  select(-`Date of Onset`)
+
+week_dengue$Week <- as.numeric(week_dengue$Week)
+
+```
+```{r}
+final_dengue <- dengue_presc %>%
+  rename(VILLNAME = VILLNAME.x) %>%
+  select(-VILLNAME.y) %>%
+  filter(Cases_per_village != 0)
+```
+
+```
+
+```{r}
+# dengue_cube <- spacetime(final_dengue, week_dengue,
+#                               .loc_col = "VILLNAME",
+#                               .time_col = "Week"
+#                               )
+```
+
+```{r})
+
+```
+
+
+
+### 7.2 Verifying Space-Time Cube
+Now we check that dengue_cube is indeed a space-time cube object.
+```{r}
+# is_spacetime_cube(dengue_cube)
+
+```
+
