@@ -1,12 +1,12 @@
-##### **Take-home Exercise 2: Application of Spatial and Spatio-temporal Analysis Methods to Discover the Distribution of Dengue Fever in Tainan City, Taiwan**
+## **Take-home Exercise 2: Application of Spatial and Spatio-temporal Analysis Methods to Discover the Distribution of Dengue Fever in Tainan City, Taiwan**
 
 ------------------------------------------------------------------------
 
-#### 1.0 Background
+### 1.0 Background
 
 The last significant outbreak of dengue fever in Taiwan was recorded in 2015, with 43,000 dengue cases and 228 deaths. In 2023, 26,703 cases were recorded with 25K being from Tainan City.
 
-#### 1.1 Objectives & Approach
+### 1.1 Objectives & Approach
 
 The goal of this exercise is to determine if the distribution of dengue cases in Tainan are spatially and temporally dependent, and if so, to detect the locations of the clusters.
 
@@ -22,13 +22,13 @@ The areas selected are the Tainan City counties D01, D02, D04, D06, D07, D08, D3
 
 ------------------------------------------------------------------------
 
-#### 2.0 Package Installation
+### 2.0 Package Installation
 
 ```{r}
-pacman::p_load(sfdep, sf, tidyverse, tmap, dplyr, plotly, lubridate)
+pacman::p_load(sfdep, sf, tidyverse, tmap, dplyr, plotly, lubridate, spdep)
 ```
 
-#### 2.1 Data Preparation
+### 2.1 Data Preparation
 
 +---------------------+-------------+-------------------------------------------------------------+
 | Data                | Type        | Description                                                 |
@@ -40,7 +40,7 @@ pacman::p_load(sfdep, sf, tidyverse, tmap, dplyr, plotly, lubridate)
 |                     | .csv        |                                                             |
 +---------------------+-------------+-------------------------------------------------------------+
 
-### 2.1.0 TAINAN_VILLAGE Data
+#### 2.1.0 TAINAN_VILLAGE Data
 
 First-time load of the geospatial data and identifying its CRS.
 
@@ -69,14 +69,14 @@ prunedvillage_sf <- prunedvillage_sf %>%
 To speed up future referencing of this dataframe, we can save it as an RDS.
 
 ```{r}
-write_rds(prunedvillage_sf, "../../data/TaiwanVillage/prunedvillage_sf.rds")
+# write_rds(prunedvillage_sf, "../../data/TaiwanVillage/prunedvillage_sf.rds")
 ```
 
 ```{r}
 prunedvillage_sf <-  read_rds("../../data/TaiwanVillage/prunedvillage_sf.rds")
 ```
 
-### 2.1.1 Dengue_Daily.csv Data
+#### 2.1.1 Dengue_Daily.csv Data
 
 First-time load of the aspatial data.
 
@@ -135,14 +135,14 @@ pruneddengue_sf <- st_as_sf(pruneddengue_sf, coords = c("X_Coord", "Y_Coord"), c
 Now that this has been standardised, we can save pruneddengue_sf as an RDS also.
 
 ```{r}
-write_rds(pruneddengue_sf, "../../data/TaiwanDengue/pruneddengue_sf.rds")
+# write_rds(pruneddengue_sf, "../../data/TaiwanDengue/pruneddengue_sf.rds")
 ```
 
 ```{r}
 pruneddengue_sf <-  read_rds("../../data/TaiwanDengue/pruneddengue_sf.rds")
 ```
 
-### 2.1.2 Visualising the Separate Datasets
+#### 2.1.2 Visualising the Separate Datasets
 
 The map of our chosen area of Tainan City:
 
@@ -163,7 +163,9 @@ tm_shape(pruneddengue_sf) +
   tm_layout(title = "Dengue Cases")
 ```
 
-#### 3.0 Overlaying Dengue Cases onto Study Layer
+### 3.0 Overlaying Dengue Cases onto Study Layer
+
+### 3.1 Intersection of prunedvillage_sf & pruneddengue_sf
 
 We perform the first joining action on the 2 sf dataframes.
 
@@ -174,48 +176,371 @@ We perform the first joining action on the 2 sf dataframes.
 This required a very long execution time so I am choosing to save it as an RDS as well to avoid future computation.
 
 ```{r}
-write_rds(dengue_on_village, "../../data/TaiwanVillage/dengue_on_village.rds")
+# write_rds(dengue_on_village, "../../data/TaiwanVillage/dengue_on_village.rds")
 ```
 
 ```{r}
 dengue_on_village <- read_rds("../../data/TaiwanVillage/dengue_on_village.rds")
 ```
 
+However during the intersection, the shared columns were not merged and there are entries containing "None" under the VILLNAME.1 column. We need to remove these and consolidate the intersected dataframe.
+
+```{r}
+cleaned_dengue_on_village <- dengue_on_village %>%
+  filter(VILLNAME.1 != "None")
+
+cleaned_dengue_on_village <- cleaned_dengue_on_village %>%
+  select(-c(TOWNNAME.1, VILLNAME.1))
+```
+
+Again, we'll save this as an RDS to avoid future computation.
+
+```{r}
+# write_rds(cleaned_dengue_on_village, "../../data/TaiwanVillage/cleaned_dengue_on_village.rds")
+```
+
+```{r}
+cleaned_dengue_on_village <- read_rds("../../data/TaiwanVillage/cleaned_dengue_on_village.rds")
+```
+
+#### 3.1.0 Initial Plot of Dengue Cases on Map (as dots)
+
 Plotting this dengue layer on the map of our study area.
 
 ```{r}
 tm_shape(prunedvillage_sf) + 
   tm_polygons("TOWNID") +
-  tm_shape(dengue_on_village) +
+  tm_shape(cleaned_dengue_on_village) +
   tm_dots(col = "black", size = 0.0001)
 ```
 
 While this shows us the distribution of all the dengue cases in our study area, it is not very clear or intuitive where the highest-hit sectors are due to all the dots.
 
-So we need to group the count of dengue cases
+#### 3.1.1 Plotting of Dengue Cases without dots
 
-We can solve this by creating a choropleth map that will show us a heatmap of the total dengue cases.
+First we need to group the count of dengue cases by village to do away with the dots.
 
 ```{r}
-tm_shape(mpsz_pop2020)+
-  tm_fill("DEPENDENCY", 
+dengue_conc <- cleaned_dengue_on_village %>%
+  group_by(VILLNAME) %>%
+  summarise(Cases_per_village = n())
+```
+
+We want to join this new dataframe with the village geospatial data to be able to create a choropleth map.
+
+```{r}
+dengue_conc <- st_join(prunedvillage_sf, dengue_conc)
+```
+
+We can now plot a map of the total dengue cases per village.
+
+```{r}
+tmap_mode('plot')
+tm_shape(dengue_conc) +
+  tm_fill(col = "Cases_per_village", 
           style = "quantile", 
-          palette = "Blues",
-          title = "Dependency ratio") +
-  tm_layout(main.title = "Distribution of Dependency Ratio by planning subzone",
+          palette = "Blues", 
+          title = "Total Dengue Cases") +
+  tm_layout(main.title = "Total Dengue Cases per Village",
             main.title.position = "center",
             main.title.size = 1.2,
             legend.height = 0.45, 
             legend.width = 0.35,
             frame = TRUE) +
   tm_borders(alpha = 0.5) +
-  tm_compass(type="8star", size = 2) +
   tm_scale_bar() +
-  tm_grid(alpha =0.2) +
-  tm_credits("Source: Planning Sub-zone boundary from Urban Redevelopment Authorithy (URA)\n and Population data from Department of Statistics DOS", 
-             position = c("left", "bottom"))
+  tm_grid(alpha =0.2)
 ```
+
+Unfortunately this has uncovered values that are "NA" under VILLNAME.y and under Cases_per_village. We need to remove these entries.
+
+```{r}
+dengue_conc <- dengue_conc %>%
+  filter(!is.na(Cases_per_village))
+```
+
+We can now plot the map again.
+
+```{r}
+tmap_mode('plot')
+tm_shape(dengue_conc) +
+  tm_fill(col = "Cases_per_village", 
+          style = "quantile", 
+          palette = "Blues", 
+          title = "Total Dengue Cases") +
+  tm_layout(main.title = "Total Dengue Cases per Village",
+            main.title.position = "center",
+            main.title.size = 1.2,
+            legend.height = 0.45, 
+            legend.width = 0.35,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_scale_bar() +
+  tm_grid(alpha =0.2)
+```
+And we'll save dengue_conc as an RDS for future reference.
+
+```{r}
+# write_rds(dengue_conc, "../../data/TaiwanVillage/dengue_conc.rds")
+```
+```{r}
+dengue_conc <- read_rds("../../data/TaiwanVillage/dengue_conc.rds")
+```
+
 
 However the usefulness of knowing the total cases per sector is limited. It may only reflect that the population or population densities in these sectors are relatively high, or that the transmission vectors are more significant in these sectors.
 
-To see the true presence of dengue cases, we can view the cases p
+#### 3.1.2 Visualising Dengue Cases per County per Month
+
+To see the true presence of dengue cases, we have to backtrack to the original dengue cases dataframe and group the cases by village and date of onset that correspond to the epidemiology weeks. To keep things simpler, we will group the cases by month, first looking at August.
+
+```{r}
+dengue_aug <- pruneddengue_sf %>%
+  filter(`Date of Onset` >= as.Date("2023-08-01") & `Date of Onset` <= as.Date("2023-08-31")) %>%
+  group_by(VILLNAME) %>%
+  summarise(Cases_per_month = n())
+
+dengue_aug <- st_join(prunedvillage_sf, dengue_aug)
+```
+
+Now we can visualise this:
+
+```{r}
+tmap_mode('plot')
+tm_shape(dengue_aug) +
+  tm_fill(col = "Cases_per_month", 
+          style = "quantile", 
+          palette = "Blues", 
+          title = "Total Dengue Cases") +
+  tm_layout(main.title = "Total Dengue Cases per Village in August 2023",
+            main.title.position = "center",
+            main.title.size = 1.2,
+            legend.height = 0.45, 
+            legend.width = 0.35,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_scale_bar() +
+  tm_grid(alpha =0.2)
+```
+
+We can do another plot for September:
+
+```{r}
+dengue_sept <- pruneddengue_sf %>%
+  filter(`Date of Onset` >= as.Date("2023-09-01") & `Date of Onset` <= as.Date("2023-09-30")) %>%
+  group_by(VILLNAME) %>%
+  summarise(Cases_per_month = n())
+
+dengue_sept <- st_join(prunedvillage_sf, dengue_sept)
+```
+
+```{r}
+tmap_mode('plot')
+tm_shape(dengue_sept) +
+  tm_fill(col = "Cases_per_month", 
+          style = "quantile", 
+          palette = "Blues", 
+          title = "Total Dengue Cases") +
+  tm_layout(main.title = "Total Dengue Cases per Village in September 2023",
+            main.title.position = "center",
+            main.title.size = 1.2,
+            legend.height = 0.45, 
+            legend.width = 0.35,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_scale_bar() +
+  tm_grid(alpha =0.2)
+
+```
+
+And now for October:
+
+```{r}
+dengue_oct <- pruneddengue_sf %>%
+  filter(`Date of Onset` >= as.Date("2023-10-01") & `Date of Onset` <= as.Date("2023-10-31")) %>%
+  group_by(VILLNAME) %>%
+  summarise(Cases_per_month = n())
+
+dengue_oct <- st_join(prunedvillage_sf, dengue_oct)
+```
+
+```{r}
+tmap_mode('plot')
+tm_shape(dengue_oct) +
+  tm_fill(col = "Cases_per_month", 
+          style = "quantile", 
+          palette = "Blues", 
+          title = "Total Dengue Cases") +
+  tm_layout(main.title = "Total Dengue Cases per Village in October 2023",
+            main.title.position = "center",
+            main.title.size = 1.2,
+            legend.height = 0.45, 
+            legend.width = 0.35,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_scale_bar() +
+  tm_grid(alpha =0.2)
+
+```
+
+November:
+
+```{r}
+dengue_nov <- pruneddengue_sf %>%
+  filter(`Date of Onset` >= as.Date("2023-11-01") & `Date of Onset` <= as.Date("2023-11-30")) %>%
+  group_by(VILLNAME) %>%
+  summarise(Cases_per_month = n())
+
+dengue_nov <- st_join(prunedvillage_sf, dengue_nov)
+```
+
+```{r}
+tmap_mode('plot')
+tm_shape(dengue_nov) +
+  tm_fill(col = "Cases_per_month", 
+          style = "quantile", 
+          palette = "Blues", 
+          title = "Total Dengue Cases") +
+  tm_layout(main.title = "Total Dengue Cases per Village in November 2023",
+            main.title.position = "center",
+            main.title.size = 1.2,
+            legend.height = 0.45, 
+            legend.width = 0.35,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_scale_bar() +
+  tm_grid(alpha =0.2)
+
+
+```
+
+And finally December:
+
+```{r}
+dengue_dec <- pruneddengue_sf %>%
+  filter(`Date of Onset` >= as.Date("2023-12-01") & `Date of Onset` <= as.Date("2023-12-16")) %>%
+  group_by(VILLNAME) %>%
+  summarise(Cases_per_month = n())
+
+dengue_dec <- st_join(prunedvillage_sf, dengue_dec)
+```
+
+```{r}
+tmap_mode('plot')
+tm_shape(dengue_dec) +
+  tm_fill(col = "Cases_per_month", 
+          style = "quantile", 
+          palette = "Blues", 
+          title = "Total Dengue Cases") +
+  tm_layout(main.title = "Total Dengue Cases per Village in December 2023",
+            main.title.position = "center",
+            main.title.size = 1.2,
+            legend.height = 0.45, 
+            legend.width = 0.35,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_scale_bar() +
+  tm_grid(alpha =0.2)
+
+
+```
+It appears that cases peaked in September and October, with their spread across many villages. When cases dipped in November and December, they were more concentrated in a few villages.
+
+### 4.0 Global Spatial Autocorrelation Analysis
+
+### 4.1 Deriving contiguity weights: Queen's method
+
+#### 4.1.0 Simplifying the Data
+As this component of the analysis is only concerned with spatial properties, we can revert to the original pruneddengue_sf dataframe.To prevent conflicts with the previous dataframes, we will create a new dataframe and regroup the dengue cases by village, performing the same treatment as above.
+
+```{r}
+pruneddengue_1 <- pruneddengue_sf %>%
+  group_by(VILLNAME) %>%
+  summarise(Cases_per_village = n()) %>%
+  filter(!(VILLNAME == "None"))
+```
+
+We can now join the data again and impute the NA values with 0, as missing values in this context would mean that there were no dengue cases in that village.
+```{r}
+dengue_presc <- st_join(prunedvillage_sf, pruneddengue_1)
+dengue_presc$Cases_per_village[is.na(dengue_presc$Cases_per_village)] <- 0
+```
+
+We save this as an RDS for future use.
+```{r}
+# write_rds(dengue_presc, "../../data/TaiwanVillage/dengue_presc.rds")
+```
+```{r}
+dengue_presc <- read_rds("../../data/TaiwanVillage/dengue_presc.rds")
+```
+
+#### 4.1.1 Deriving the contiguity weights: Queen's method
+
+```{r}
+wm_q <- dengue_presc %>%
+  mutate(nb = st_contiguity(geometry),
+         wt = st_weights(nb, style = "W"),
+         .before = 1)
+```
+Inspecting the dataframe:
+```{r}
+glimpse(wm_q)
+```
+### 4.2 Computing Global Moran's I
+
+```{r}
+moranI <- global_moran(wm_q$Cases_per_village,
+                       wm_q$nb,
+                       wm_q$wt)
+
+glimpse(moranI)
+```
+
+### 4.3 Performing Global Moran's I Test
+
+```{r}
+global_moran_test(wm_q$Cases_per_village,
+                  wm_q$nb,
+                  wm_q$wt)
+
+```
+### 4.4 Performing Global Moran's I Permutation Test
+To ensure reproducible results, we specify the seed used.
+```{r}
+set.seed(1234)
+```
+```{r}
+global_moran_perm(wm_q$Cases_per_village,
+                  wm_q$nb,
+                  wm_q$wt,
+                  nsim = 99)
+
+```
+### 4.5 Analysis of Global Moran's I Test Results
+We see that the p-value is less than 0.05, so we can reject the null hypothesis that there is no spatial autocorrelation in the distribution of dengue cases in Tainan City.
+
+In addition, because Moran's I statistic is positive, we can infer that there are signs of clustering in the distribution of dengue cases.
+
+### 5.0 Local Spatial Autocorrelation Analysis
+
+### 5.1 Computing Local Moran's I
+
+```{r}
+lisa <- wm_q %>%
+  mutate(local_moran = local_moran(
+    Cases_per_village, nb, wt, nsim = 99),
+    .before = 1) %>%
+  unnest(local_moran)
+```
+
+### 5.2 Visualising Local Moran's I
+
+```{r}
+tmap_mode("plot")
+tm_shape(lisa) +
+  tm_fill("ii") + 
+  tm_borders(alpha = 0.5) +
+  tm_view(set.zoom.limits = c(6,8)) +
+  tm_layout(main.title = "Local Moran's I of Cases per Village",
+            main.title.size = 0.7)
+```
