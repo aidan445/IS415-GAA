@@ -167,6 +167,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="dropdown-item" href="../../In-class_Ex/In-class_Ex05/In-class_Ex05.html" rel="" target="">
  <span class="dropdown-text">In-class Exercise 5</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../../In-class_Ex/In-class_Ex07/In-class_Ex07.html" rel="" target="">
+ <span class="dropdown-text">In-class Exercise 7</span></a>
+  </li>  
     </ul>
   </li>
   <li class="nav-item dropdown ">
@@ -181,6 +185,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li>
     <a class="dropdown-item" href="../../Take-home_Ex/Take-home_Ex02/Take-home_Ex02.html" rel="" target="">
  <span class="dropdown-text">Take-home Exercise 2</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../Take-home_Ex/Take-home_Ex03/Take-home_Ex03.html" rel="" target="">
+ <span class="dropdown-text">Take-home Exercise 3</span></a>
   </li>  
     </ul>
   </li>
@@ -258,6 +266,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(sf, tidyverse, tmap, sdpep, knitr, spNetwork, classInt, viridis, ggplot2, leaflet, arrow, lubridate, gridExtra, patchwork)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
+<pre><code>Warning: unable to access index for repository http://www.stats.ox.ac.uk/pub/RWin/src/contrib:
+  cannot open URL 'http://www.stats.ox.ac.uk/pub/RWin/src/contrib/PACKAGES'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
 <pre><code>Warning: package 'sdpep' is not available for this version of R
 
 A version of this package for your version of R might be available elsewhere,
@@ -284,12 +296,12 @@ logical.return = TRUE, : there is no package called 'sdpep'</code></pre>
 <pre><code>Warning in pacman::p_load(sf, tidyverse, tmap, sdpep, knitr, spNetwork, : Failed to install/load:
 sdpep</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">"maptools"</span>, <span class="at">repos =</span> <span class="st">"https://packagemanager.posit.co/cran/2023-10-13"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">"maptools"</span>, <span class="at">repos =</span> <span class="st">"https://packagemanager.posit.co/cran/2023-10-13"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>package 'maptools' successfully unpacked and MD5 sums checked
 
 The downloaded binary packages are in
-    C:\Users\aidan\AppData\Local\Temp\RtmpQJvjDK\downloaded_packages</code></pre>
+    C:\Users\aidan\AppData\Local\Temp\Rtmp65KPoF\downloaded_packages</code></pre>
 </div>
 </div>
 </section>
@@ -297,8 +309,8 @@ The downloaded binary packages are in
 <h4 class="anchored" data-anchor-id="data">3.0 Data</h4>
 <table class="table">
 <colgroup>
-<col style="width: 73%">
-<col style="width: 26%">
+<col style="width: 72%">
+<col style="width: 27%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -329,8 +341,8 @@ The downloaded binary packages are in
 <section id="master-plan-2019" class="level1">
 <h1>Master Plan 2019</h1>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>mpsz_sf <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"../../data/mpsz-2019"</span>,</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>                  <span class="at">layer =</span> <span class="st">"MPSZ-2019"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>mpsz_sf <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"../../data/mpsz-2019"</span>,</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>                  <span class="at">layer =</span> <span class="st">"MPSZ-2019"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Reading layer `MPSZ-2019' from data source `C:\aidan445\IS415-GAA\data\mpsz-2019' using driver `ESRI Shapefile'
 Simple feature collection with 332 features and 6 fields
@@ -344,16 +356,16 @@ Geodetic CRS:  WGS 84</code></pre>
 <section id="grab-posisi-adapted-from-in-class_excercise-2" class="level1">
 <h1>Grab-Posisi (adapted from In-class_Excercise 2)</h1>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># grab &lt;-  read_parquet("../../data/GrabPosisi/part-00000-8bbff892-97d2-4011-9961-703e38972569.c000.snappy.parquet")</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>origin_grab <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="st">"../../data/rds/origin_df.rds"</span>)</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>destination_grab <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="st">"../../data/rds/destination_df.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># grab &lt;-  read_parquet("../../data/GrabPosisi/part-00000-8bbff892-97d2-4011-9961-703e38972569.c000.snappy.parquet")</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>origin_grab <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="st">"../../data/rds/origin_df.rds"</span>)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>destination_grab <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="st">"../../data/rds/destination_df.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="geofabrik.des-openstreetmap-road-data" class="level1">
 <h1>geofabrik.de’s OpenStreetMap Road Data</h1>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>road_84 <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="at">dsn=</span><span class="st">"../../data/OpenStreetMap"</span>, <span class="at">layer=</span><span class="st">"gis_osm_roads_free_1"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>road_84 <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="at">dsn=</span><span class="st">"../../data/OpenStreetMap"</span>, <span class="at">layer=</span><span class="st">"gis_osm_roads_free_1"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Reading layer `gis_osm_roads_free_1' from data source 
   `C:\aidan445\IS415-GAA\data\OpenStreetMap' using driver `ESRI Shapefile'
@@ -374,26 +386,26 @@ Geodetic CRS:  WGS 84</code></pre>
 <section id="setting-a-handy-variable-to-reference-as-parameter-while-converting-to-svy21" class="level1">
 <h1>Setting a handy variable to reference as parameter while converting to SVY21</h1>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>crs_svy21 <span class="ot">&lt;-</span> <span class="st">"EPSG:3414"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>crs_svy21 <span class="ot">&lt;-</span> <span class="st">"EPSG:3414"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="converting-master-plan-2019-to-svy21-crs" class="level1">
 <h1>Converting Master Plan 2019 to SVY21 CRS</h1>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>mpsz_21 <span class="ot">&lt;-</span> <span class="fu">st_transform</span>(mpsz_sf, crs_svy21)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>mpsz_21 <span class="ot">&lt;-</span> <span class="fu">st_transform</span>(mpsz_sf, crs_svy21)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="converting-osm-roads-data-to-svy21-crs" class="level1">
 <h1>Converting OSM Roads Data to SVY21 CRS</h1>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>roads_21 <span class="ot">&lt;-</span> <span class="fu">st_transform</span>(road_84, crs_svy21)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>roads_21 <span class="ot">&lt;-</span> <span class="fu">st_transform</span>(road_84, crs_svy21)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="checking-that-crs-for-both-are-as-expected" class="level1">
 <h1>Checking that CRS for both are as expected</h1>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">st_crs</span>(roads_21)</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">st_crs</span>(mpsz_21)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">st_crs</span>(roads_21)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">st_crs</span>(mpsz_21)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="ensuring-no-invalid-geometries-before-intersecting" class="level1">
@@ -402,14 +414,14 @@ Geodetic CRS:  WGS 84</code></pre>
 <section id="checking-if-road-data-contains-invalid-geometry" class="level1">
 <h1>Checking if Road data contains invalid geometry</h1>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">st_is_valid</span>(roads_21)</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="co"># st_make_valid(roads_21)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">st_is_valid</span>(roads_21)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="co"># st_make_valid(roads_21)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="first-attempt-to-correct-invalid-geometry-in-master-plan-2019" class="level1">
 <h1>First Attempt to correct invalid geometry in Master Plan 2019</h1>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">st_make_valid</span>(mpsz_21)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">st_make_valid</span>(mpsz_21)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Simple feature collection with 332 features and 6 fields
 Geometry type: GEOMETRY
@@ -440,7 +452,7 @@ First 10 features:
 9        CR MULTIPOLYGON (((28298.9 217...
 10       CR MULTIPOLYGON (((27524.76 24...</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">st_is_valid</span>(mpsz_21)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">st_is_valid</span>(mpsz_21)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  [1]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE FALSE  TRUE  TRUE
  [13]  TRUE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
@@ -477,13 +489,13 @@ First 10 features:
 <section id="identify-and-extract-the-outer-islands" class="level1">
 <h1>Identify and extract the outer islands</h1>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>outer_islands <span class="ot">&lt;-</span> <span class="fu">subset</span>(mpsz_21, <span class="sc">!</span><span class="fu">st_is_valid</span>(mpsz_21))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>outer_islands <span class="ot">&lt;-</span> <span class="fu">subset</span>(mpsz_21, <span class="sc">!</span><span class="fu">st_is_valid</span>(mpsz_21))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="use-st_union-to-merge-geometries-of-mpsz-and-outer-islands" class="level1">
 <h1>Use st_union to merge geometries of mpsz and outer islands</h1>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>merged_geometries <span class="ot">&lt;-</span> <span class="fu">st_union</span>(mpsz_21, outer_islands)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>merged_geometries <span class="ot">&lt;-</span> <span class="fu">st_union</span>(mpsz_21, outer_islands)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: attribute variables are assumed to be spatially constant throughout
 all geometries</code></pre>
@@ -493,7 +505,7 @@ all geometries</code></pre>
 <section id="use-st_difference-to-remove-the-overlap-and-get-the-coastal-boundary-without-outer-islands" class="level1">
 <h1>Use st_difference to remove the overlap and get the coastal boundary without outer islands</h1>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>coastal_boundary <span class="ot">&lt;-</span> <span class="fu">st_difference</span>(mpsz_21, merged_geometries)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>coastal_boundary <span class="ot">&lt;-</span> <span class="fu">st_difference</span>(mpsz_21, merged_geometries)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: attribute variables are assumed to be spatially constant throughout
 all geometries</code></pre>
@@ -503,7 +515,7 @@ all geometries</code></pre>
 <section id="second-attempt-to-correct-invalid-geometry-in-master-plan-2019" class="level1">
 <h1>Second Attempt to correct invalid geometry in Master Plan 2019</h1>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">st_is_valid</span>(coastal_boundary)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">st_is_valid</span>(coastal_boundary)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    [1] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
    [15] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
@@ -7659,13 +7671,13 @@ all geometries</code></pre>
 <section id="define-a-delimiting-area-bounded-by-a-bounding-box-formed-from-coastal_boundary" class="level1">
 <h1>Define a delimiting area bounded by a bounding box formed from coastal_boundary</h1>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>bbox <span class="ot">&lt;-</span> <span class="fu">st_bbox</span>(coastal_boundary)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>bbox <span class="ot">&lt;-</span> <span class="fu">st_bbox</span>(coastal_boundary)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="refining-road-to-only-include-area-bounded-by-master-plan-2019s-bounding-box" class="level1">
 <h1>Refining Road to only include area bounded by Master Plan 2019’s bounding box</h1>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>roads_sg <span class="ot">&lt;-</span> <span class="fu">st_intersection</span>(roads_21, <span class="fu">st_as_sfc</span>(bbox))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>roads_sg <span class="ot">&lt;-</span> <span class="fu">st_intersection</span>(roads_21, <span class="fu">st_as_sfc</span>(bbox))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: attribute variables are assumed to be spatially constant throughout
 all geometries</code></pre>
@@ -7679,13 +7691,13 @@ all geometries</code></pre>
 <h1>Overlay Singapore Roads data on Master Plan 2019’s map</h1>
 <p>Error after here</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># map_sg &lt;- roads_sg %&gt;% st_intersection(coastal_boundary)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># map_sg &lt;- roads_sg %&gt;% st_intersection(coastal_boundary)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="purge-map-of-irrelevantinconsequential-roads-including-nulls" class="level1">
 <h1>Purge map of irrelevant/inconsequential roads, including nulls</h1>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># map_sg &lt;- map_sg  %&gt;% filter(fclass %in% c("primary", "secondary", "tertiary", "motorway", "trunk"), !is.na(name))</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># map_sg &lt;- map_sg  %&gt;% filter(fclass %in% c("primary", "secondary", "tertiary", "motorway", "trunk"), !is.na(name))</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="overlay-of-grab-posisi-data-for-overlay" class="level1">
@@ -7694,34 +7706,34 @@ all geometries</code></pre>
 <section id="converting-ride-origin-points-to-sf-dataframe" class="level1">
 <h1>Converting ride origin points to sf dataframe</h1>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>origin_grab_sf <span class="ot">&lt;-</span> <span class="fu">st_as_sf</span>(origin_grab, <span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"rawlng"</span>, <span class="st">"rawlat"</span>), <span class="at">crs =</span> <span class="dv">4326</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>origin_grab_sf <span class="ot">&lt;-</span> <span class="fu">st_as_sf</span>(origin_grab, <span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"rawlng"</span>, <span class="st">"rawlat"</span>), <span class="at">crs =</span> <span class="dv">4326</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="converting-ride-destination-points-to-sf-dataframe" class="level1">
 <h1>Converting ride destination points to sf dataframe</h1>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>destination_grab_sf <span class="ot">&lt;-</span> <span class="fu">st_as_sf</span>(destination_grab, <span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"rawlng"</span>, <span class="st">"rawlat"</span>), <span class="at">crs =</span> <span class="dv">4326</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>destination_grab_sf <span class="ot">&lt;-</span> <span class="fu">st_as_sf</span>(destination_grab, <span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"rawlng"</span>, <span class="st">"rawlat"</span>), <span class="at">crs =</span> <span class="dv">4326</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="converting-origin-and-destination-sf-dataframes-into-svy21-crs" class="level1">
 <h1>Converting origin and destination sf dataframes into SVY21 CRS</h1>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>origin_grab_sf <span class="ot">&lt;-</span> <span class="fu">st_transform</span>(origin_grab_sf, crs_svy21)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>origin_grab_sf <span class="ot">&lt;-</span> <span class="fu">st_transform</span>(origin_grab_sf, crs_svy21)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>destination_grab_sf <span class="ot">&lt;-</span> <span class="fu">st_transform</span>(destination_grab_sf, crs_svy21)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>destination_grab_sf <span class="ot">&lt;-</span> <span class="fu">st_transform</span>(destination_grab_sf, crs_svy21)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="plotting-of-grab-ride-origin-destination-points-on-road-map-together-on-master-plan-map" class="level1">
 <h1>Plotting of Grab ride origin &amp; destination points on Road map, together on Master Plan map</h1>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># tmap_mode('view')</span></span>
-<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="co"># &gt; tm_shape(map_sg) +</span></span>
-<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a><span class="co"># +   tm_borders() + </span></span>
-<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a><span class="co"># +   tm_shape(roads_sg_valid) +</span></span>
-<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a><span class="co"># +   tm_lines() +</span></span>
-<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a><span class="co"># +   tm_shape(origin_grab_sf) +</span></span>
-<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a><span class="co"># +   tm_dots()</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="co"># tmap_mode('view')</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="co"># &gt; tm_shape(map_sg) +</span></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a><span class="co"># +   tm_borders() + </span></span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a><span class="co"># +   tm_shape(roads_sg_valid) +</span></span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a><span class="co"># +   tm_lines() +</span></span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a><span class="co"># +   tm_shape(origin_grab_sf) +</span></span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a><span class="co"># +   tm_dots()</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 
 

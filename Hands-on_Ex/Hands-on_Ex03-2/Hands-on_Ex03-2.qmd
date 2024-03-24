@@ -1,10 +1,18 @@
+---
+execute:
+  freeze: true
+---
+
 Loading of packages
+
 ```{r}
 pacman::p_load(maptools, sf, raster, spatstat, tmap)
 ```
+
 5.4 Spatial Data Wrangling
 
 5.4.1 Importing the spatial data
+
 ```{r}
 invisible(library(sf))
 
@@ -20,6 +28,7 @@ invisible(mpsz_sf <- st_read(dsn = "../../data/MasterPlan2014",
 ```
 
 5.4.2 Mapping the geospatial data sets
+
 ```{r}
 tmap_mode('view')
 tm_shape(childcare_sf)+
@@ -27,10 +36,10 @@ tm_shape(childcare_sf)+
 tmap_mode('plot')
 ```
 
-===
-5.5 Geospatial Data wrangling
+=== 5.5 Geospatial Data wrangling
 
-5.5.1 Converting sf data frames to sp’s Spatial* class
+5.5.1 Converting sf data frames to sp’s Spatial\* class
+
 ```{r}
 childcare <- as_Spatial(childcare_sf)
 mpsz <- as_Spatial(mpsz_sf)
@@ -41,7 +50,8 @@ mpsz
 sg
 ```
 
-5.5.2 Converting the Spatial* class into generic sp format
+5.5.2 Converting the Spatial\* class into generic sp format
+
 ```{r}
 childcare_sp <- as(childcare, "SpatialPoints")
 sg_sp <- as(sg, "SpatialPolygons")
@@ -51,6 +61,7 @@ sg_sp
 ```
 
 5.5.3 Converting the generic sp format into spatstat’s ppp format
+
 ```{r}
 childcare_ppp <- as(childcare_sp, "ppp")
 childcare_ppp
@@ -60,6 +71,7 @@ summary(childcare_ppp)
 ```
 
 5.5.4 Handling duplicated points
+
 ```{r}
 any(duplicated(childcare_ppp))
 multiplicity(childcare_ppp)
@@ -81,6 +93,7 @@ any(duplicated(childcare_ppp_jit))
 ```
 
 5.5.5 Creating owin object
+
 ```{r}
 sg_owin <- as(sg_sp, "owin")
 plot(sg_owin)
@@ -88,11 +101,14 @@ summary(sg_owin)
 ```
 
 5.5.6 Combining point events object and owin object
+
 ```{r}
 childcareSG_ppp = childcare_ppp[sg_owin]
 summary(childcareSG_ppp)
 ```
+
 5.5.6.1 Extracting study area
+
 ```{r}
 pg = mpsz[mpsz@data$PLN_AREA_N == "PUNGGOL",]
 tm = mpsz[mpsz@data$PLN_AREA_N == "TAMPINES",]
@@ -105,7 +121,9 @@ plot(tm, main = "Tampines")
 plot(ck, main = "Choa Chu Kang")
 plot(jw, main = "Jurong West")
 ```
+
 5.5.6.2 Converting the spatial point data frame into generic sp format
+
 ```{r}
 pg_sp = as(pg, "SpatialPolygons")
 tm_sp = as(tm, "SpatialPolygons")
@@ -113,7 +131,9 @@ ck_sp = as(ck, "SpatialPolygons")
 jw_sp = as(jw, "SpatialPolygons")
 
 ```
+
 5.5.6.3 Creating owin object
+
 ```{r}
 pg_owin = as(pg_sp, "owin")
 tm_owin = as(tm_sp, "owin")
@@ -121,7 +141,9 @@ ck_owin = as(ck_sp, "owin")
 jw_owin = as(jw_sp, "owin")
 
 ```
+
 5.5.6.4 Combining childcare points and the study area
+
 ```{r}
 childcare_pg_ppp = childcare_ppp_jit[pg_owin]
 childcare_tm_ppp = childcare_ppp_jit[tm_owin]
@@ -140,18 +162,19 @@ plot(childcare_ck_ppp.km, main="Choa Chu Kang")
 plot(childcare_jw_ppp.km, main="Jurong West")
 ```
 
-===
-5.6 Second-order Spatial Point Patterns Analysis
+=== 5.6 Second-order Spatial Point Patterns Analysis
 
-===
-5.7 Analysing Spatial Point Process Using G-Function
+=== 5.7 Analysing Spatial Point Process Using G-Function
 
 5.7.1 Choa Chu Kang planning area
+
 ```{r}
 G_CK = Gest(childcare_ck_ppp, correction = "border")
 plot(G_CK, xlim=c(0,500))
 ```
+
 5.7.1.2 Performing Complete Spatial Randomness Test
+
 ```{r}
 G_CK.csr <- envelope(childcare_ck_ppp, Gest, nsim = 999)
 plot(G_CK.csr)
@@ -160,28 +183,32 @@ plot(G_CK.csr)
 5.7.2 Tampines planning area
 
 5.7.2.1 Computing G-function estimation
+
 ```{r}
 G_tm = Gest(childcare_tm_ppp, correction = "best")
 plot(G_tm)
 ```
+
 5.7.2.2 Performing Complete Spatial Randomness Test
+
 ```{r}
 G_tm.csr <- envelope(childcare_tm_ppp, Gest, correction = "all", nsim = 999)
 plot(G_tm.csr)
 ```
 
-===
-5.8 Analysing Spatial Point Process Using F-Function
+=== 5.8 Analysing Spatial Point Process Using F-Function
 
 5.8.1 Choa Chu Kang planning area
 
 5.8.1.1 Computing F-function estimation
+
 ```{r}
 F_CK = Fest(childcare_ck_ppp)
 plot(F_CK)
 ```
 
 5.8.2 Performing Complete Spatial Randomness Test
+
 ```{r}
 F_CK.csr <- envelope(childcare_ck_ppp, Fest, nsim = 999)
 plot(F_CK.csr)
@@ -190,28 +217,33 @@ plot(F_CK.csr)
 5.8.3 Tampines planning area
 
 5.8.3.1 Computing F-function estimation
+
 ```{r}
 F_tm = Fest(childcare_tm_ppp, correction = "best")
 plot(F_tm)
 ```
+
 5.8.3.2 Performing Complete Spatial Randomness Test
+
 ```{r}
 F_tm.csr <- envelope(childcare_tm_ppp, Fest, correction = "all", nsim = 999)
 plot(F_tm.csr)
 
 ```
 
-===
-5.9 Analysing Spatial Point Process Using K-Function
+=== 5.9 Analysing Spatial Point Process Using K-Function
 
 5.9.1 Choa Chu Kang planning area
 
 5.9.1.1 Computing K-fucntion estimate
+
 ```{r}
 K_ck = Kest(childcare_ck_ppp, correction = "Ripley")
 plot(K_ck, . -r ~ r, ylab= "K(d)-r", xlab = "d(m)")
 ```
+
 5.9.1.2 Performing Complete Spatial Randomness Test
+
 ```{r}
 K_ck.csr <- envelope(childcare_ck_ppp, Kest, nsim = 99, rank = 1, glocal=TRUE)
 plot(K_ck.csr, . - r ~ r, xlab="d", ylab="K(d)-r")
@@ -220,31 +252,36 @@ plot(K_ck.csr, . - r ~ r, xlab="d", ylab="K(d)-r")
 5.9.2 Tampines planning area
 
 5.9.2.1 Computing K-fucntion estimation
+
 ```{r}
 K_tm = Kest(childcare_tm_ppp, correction = "Ripley")
 plot(K_tm, . -r ~ r, 
      ylab= "K(d)-r", xlab = "d(m)", 
      xlim=c(0,1000))
 ```
+
 5.9.2.2 Performing Complete Spatial Randomness Test
+
 ```{r}
 K_tm.csr <- envelope(childcare_tm_ppp, Kest, nsim = 99, rank = 1, glocal=TRUE)
 plot(K_tm.csr, . - r ~ r, 
      xlab="d", ylab="K(d)-r", xlim=c(0,500))
 ```
 
-===
-5.10 Analysing Spatial Point Process Using L-Function
+=== 5.10 Analysing Spatial Point Process Using L-Function
 
 5.10.1 Choa Chu Kang planning area
 
 5.10.1.1 Computing L Fucntion estimation
+
 ```{r}
 L_ck = Lest(childcare_ck_ppp, correction = "Ripley")
 plot(L_ck, . -r ~ r, 
      ylab= "L(d)-r", xlab = "d(m)")
 ```
+
 5.10.1.2 Performing Complete Spatial Randomness Test
+
 ```{r}
 L_ck.csr <- envelope(childcare_ck_ppp, Lest, nsim = 99, rank = 1, glocal=TRUE)
 plot(L_ck.csr, . - r ~ r, xlab="d", ylab="L(d)-r")
@@ -253,6 +290,7 @@ plot(L_ck.csr, . - r ~ r, xlab="d", ylab="L(d)-r")
 5.10.2 Tampines planning area
 
 5.10.2.1 Computing L-fucntion estimate
+
 ```{r}
 L_tm = Lest(childcare_tm_ppp, correction = "Ripley")
 plot(L_tm, . -r ~ r, 
@@ -260,7 +298,9 @@ plot(L_tm, . -r ~ r,
      xlim=c(0,1000))
 
 ```
+
 5.10.2.2 Performing Complete Spatial Randomness Test
+
 ```{r}
 L_tm.csr <- envelope(childcare_tm_ppp, Lest, nsim = 99, rank = 1, glocal=TRUE)
 plot(L_tm.csr, . - r ~ r, 

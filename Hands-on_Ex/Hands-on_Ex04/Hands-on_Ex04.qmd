@@ -1,13 +1,20 @@
+---
+execute:
+  freeze: true
+---
+
 **Hands-on Exercise 4 (Spatial Weights and Applications)**
 
-
 8.2 Loading of Necessary Modules
+
 ```{r}
 pacman::p_load(sf, spdep, tmap, tidyverse, knitr)
 ```
 
-_____
+------------------------------------------------------------------------
+
 8.3 Importing Data into R
+
 ```{r}
 hunan <- st_read(dsn = "../../data/Hunan", 
                  layer = "Hunan")
@@ -16,8 +23,11 @@ hunan2012 <- read_csv("../../data/Hunan/Hunan_2012.csv")
 hunan <- left_join(hunan,hunan2012)%>%
   select(1:4, 7, 15)
 ```
-_____
+
+------------------------------------------------------------------------
+
 8.4 Visualising Regional Development Indicator
+
 ```{r}
 basemap <- tm_shape(hunan) +
   tm_polygons() +
@@ -27,10 +37,13 @@ gdppc <- qtm(hunan, "GDPPC")
 tmap_arrange(basemap, gdppc, asp=1, ncol=2)
 
 ```
-_____
+
+------------------------------------------------------------------------
+
 8.5 Computing Contiguity Spatial Weights
 
 8.5.1 Computing (QUEEN) contiguity based neighbours
+
 ```{r}
 wm_q <- poly2nb(hunan, queen=TRUE)
 summary(wm_q)
@@ -47,29 +60,37 @@ str(wm_q)
 ```
 
 8.5.2 Creating (ROOK) contiguity based neighbours
+
 ```{r}
 wm_r <- poly2nb(hunan, queen=FALSE)
 summary(wm_r)
 ```
 
 8.5.3 Visualising contiguity weights
+
 ```{r}
 longitude <- map_dbl(hunan$geometry, ~st_centroid(.x)[[1]])
 latitude <- map_dbl(hunan$geometry, ~st_centroid(.x)[[2]])
 coords <- cbind(longitude, latitude)
 head(coords)
 ```
+
 8.5.3.1 Plotting Queen contiguity based neighbours map
+
 ```{r}
 plot(hunan$geometry, border="lightgrey")
 plot(wm_q, coords, pch = 19, cex = 0.6, add = TRUE, col= "red")
 ```
+
 8.5.3.2 Plotting Rook contiguity based neighbours map
+
 ```{r}
 plot(hunan$geometry, border="lightgrey")
 plot(wm_r, coords, pch = 19, cex = 0.6, add = TRUE, col = "red")
 ```
+
 8.5.3.3 Plotting both Queen and Rook contiguity based neighbours maps
+
 ```{r}
 par(mfrow=c(1,2))
 plot(hunan$geometry, border="lightgrey", main="Queen Contiguity")
@@ -77,10 +98,13 @@ plot(wm_q, coords, pch = 19, cex = 0.6, add = TRUE, col= "red")
 plot(hunan$geometry, border="lightgrey", main="Rook Contiguity")
 plot(wm_r, coords, pch = 19, cex = 0.6, add = TRUE, col = "red")
 ```
-_____
+
+------------------------------------------------------------------------
+
 8.6 Computing distance based neighbours
 
 8.6.1 Determine the cut-off distance
+
 ```{r}
 #coords <- coordinates(hunan)
 k1 <- knn2nb(knearneigh(coords))
@@ -89,6 +113,7 @@ summary(k1dists)
 ```
 
 8.6.2 Computing fixed distance weight matrix
+
 ```{r}
 wm_d62 <- dnearneigh(coords, 0, 62, longlat = TRUE)
 wm_d62
@@ -102,7 +127,9 @@ n_comp$nc
 
 table(n_comp$comp.id)
 ```
+
 8.6.2.1 Plotting fixed distance weight matrix
+
 ```{r}
 plot(hunan$geometry, border="lightgrey")
 plot(wm_d62, coords, add=TRUE)
@@ -116,20 +143,25 @@ plot(wm_d62, coords, add=TRUE, pch = 19, cex = 0.6)
 ```
 
 8.6.3 Computing adaptive distance weight matrix
+
 ```{r}
 knn6 <- knn2nb(knearneigh(coords, k=6))
 knn6
 
 str(knn6)
 ```
+
 8.6.3.1 Plotting distance based neighbours
+
 ```{r}
 plot(hunan$geometry, border="lightgrey")
 plot(knn6, coords, pch = 19, cex = 0.6, add = TRUE, col = "red")
 ```
 
-_____
+------------------------------------------------------------------------
+
 8.7 Weights based on IDW
+
 ```{r}
 dist <- nbdists(wm_q, coords, longlat = TRUE)
 ids <- lapply(dist, function(x) 1/(x))
@@ -137,6 +169,7 @@ ids
 ```
 
 8.7.1 Row-standardised weights matrix
+
 ```{r}
 rswm_q <- nb2listw(wm_q, style="W", zero.policy = TRUE)
 rswm_q
@@ -151,10 +184,12 @@ rswm_ids$weights[1]
 summary(unlist(rswm_ids$weights))
 ```
 
-_____
+------------------------------------------------------------------------
+
 8.8 Application of Spatial Weight Matrix
 
 8.8.1 Spatial lag with row-standardized weights
+
 ```{r}
 GDPPC.lag <- lag.listw(rswm_q, hunan$GDPPC)
 GDPPC.lag
@@ -176,6 +211,7 @@ tmap_arrange(gdppc, lag_gdppc, asp=1, ncol=2)
 ```
 
 8.8.2 Spatial lag as a sum of neighboring values
+
 ```{r}
 b_weights <- lapply(wm_q, function(x) 0*x + 1)
 b_weights2 <- nb2listw(wm_q, 
@@ -197,6 +233,7 @@ tmap_arrange(gdppc, lag_sum_gdppc, asp=1, ncol=2)
 ```
 
 8.8.3 Spatial window average
+
 ```{r}
 wm_qs <- include.self(wm_q)
 
@@ -226,6 +263,7 @@ tmap_arrange(lag_gdppc, w_avg_gdppc, asp=1, ncol=2)
 ```
 
 8.8.4 Spatial window sum
+
 ```{r}
 wm_qs <- include.self(wm_q)
 wm_qs

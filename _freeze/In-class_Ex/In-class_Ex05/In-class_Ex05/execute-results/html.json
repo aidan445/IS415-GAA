@@ -1,0 +1,16 @@
+{
+  "hash": "3c245794b79f8d9a69ab7b90eeeb45c6",
+  "result": {
+    "markdown": "---\nexecute:\n  freeze: true\n---\n\n\n## In-class Exercise 5\n\nLoading of libraries\n\n\n::: {.cell}\n\n```{.r .cell-code}\npacman::p_load(sfdep, sf, tmap, tidyverse)\n```\n:::\n\n\nImporting of data\n\n\n::: {.cell}\n\n```{.r .cell-code}\nhunan <- st_read(dsn = \"../../data/Hunan\", \n                 layer = \"Hunan\")\n```\n\n::: {.cell-output .cell-output-stdout}\n```\nReading layer `Hunan' from data source `C:\\aidan445\\IS415-GAA\\data\\Hunan' using driver `ESRI Shapefile'\nSimple feature collection with 88 features and 7 fields\nGeometry type: POLYGON\nDimension:     XY\nBounding box:  xmin: 108.7831 ymin: 24.6342 xmax: 114.2544 ymax: 30.12812\nGeodetic CRS:  WGS 84\n```\n:::\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\nhunan2012 <- read_csv(\"../../data/Hunan/Hunan_2012.csv\")\n```\n\n::: {.cell-output .cell-output-stderr}\n```\nRows: 88 Columns: 29\n── Column specification ────────────────────────────────────────────────────────\nDelimiter: \",\"\nchr  (2): County, City\ndbl (27): avg_wage, deposite, FAI, Gov_Rev, Gov_Exp, GDP, GDPPC, GIO, Loan, ...\n\nℹ Use `spec()` to retrieve the full column specification for this data.\nℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.\n```\n:::\n:::\n\n\n\\*\\*For Take-home_Ex02, must make sure the 2 data sets have the same names to join on (check the name value closely also e.g. Anxiang in hunan's Name3)\n\n\n::: {.cell}\n\n```{.r .cell-code}\nhunan <- left_join(hunan,hunan2012)%>%\n  select(1:4, 7, 15)\n```\n\n::: {.cell-output .cell-output-stderr}\n```\nJoining with `by = join_by(County)`\n```\n:::\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\nbasemap <- tm_shape(hunan) +\n  tm_polygons() +\n  tm_text(\"NAME_3\", size=0.5)\n\ngdppc <- qtm(hunan, \"GDPPC\")\ntmap_arrange(basemap, gdppc, asp=1, ncol=2)\n```\n\n::: {.cell-output-display}\n![](In-class_Ex05_files/figure-html/unnamed-chunk-5-1.png){width=672}\n:::\n:::\n\n::: {.cell}\n\n:::\n\n::: {.cell}\n\n:::\n\n::: {.cell}\n\n:::\n",
+    "supporting": [
+      "In-class_Ex05_files"
+    ],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

@@ -14,6 +14,7 @@ execute:
   eval: true
   echo: true
   warning: false
+  freeze: true
 editor: visual
 ---
 
@@ -62,6 +63,7 @@ Extracting trip ending locations
 -   code that extracts trip's destination locations
 
 -   deriving weekday, ending hour & day of month columns
+
 ```{r}
 #| eval: false
 
@@ -76,11 +78,10 @@ destination_df <- df %>%
          day = factor(mday(pingtimestamp)))
 ```
 
-
 \*Because we have multiple entries for same traj_id, we can sort the timings by descending order and see the latest one as the destination
 
-
 Now, we want to save this processed data to use in the future so we don't have to repeat the sorting process again and again.
+
 ```{r}
 #| eval: false
 
@@ -88,10 +89,11 @@ write_rds(origin_df, "../../data/rds/origin_df.rds")
 write_rds(destination_df, "../../data/rds/destination_df.rds")
 ```
 
-
 And next time, we can just import these new rds files (not excel as they're incapable of storing the data structures we use)
+
 ```{r}
 origin_df <- read_rds("../../data/rds/origin_df.rds")
 destination_df <- read_rds("../../data/rds/destination_df.rds")
 ```
-Now that we have these, we can add the line "#| eval: false" at the earlier code chunks where we imported the very big datas. In fact, once we have run the stuff above, we can just hide everything. We can also use "#| echo: false" to render it invisible.
+
+Now that we have these, we can add the line "#\| eval: false" at the earlier code chunks where we imported the very big datas. In fact, once we have run the stuff above, we can just hide everything. We can also use "#\| echo: false" to render it invisible.

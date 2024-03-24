@@ -1,5 +1,7 @@
 ---
 title: "Hands-on_Ex02"
+execute:
+  freeze: true
 ---
 
 2.3.1 & 2.3.2: Data & Importing of Data into R

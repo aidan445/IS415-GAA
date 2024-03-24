@@ -6,6 +6,7 @@ execute:
   echo: false
   message: false
   warning: false
+  freeze: true
 editor: visual
 ---
 
@@ -13,12 +14,15 @@ editor: visual
 # | eval: true
 install.packages("maptools", repos = "https://packagemanager.posit.co/cran/2023-10-13")
 ```
+
 Loading of libraries
+
 ```{r}
 pacman::p_load(maptools, sf, raster, spatstat, tmap, tidyverse)
 ```
 
 Importing of data
+
 ```{r}
 invisible(library(sf))
 
@@ -38,31 +42,37 @@ invisible(mpsz_sf <- st_read(dsn = "../../data/MasterPlan2014",
 ```
 
 Deriving Costal Outline from MPSZ MasterPlan Zone
+
 ```{r}
 sg_sf <- mpsz_sf %>%
   st_union()
 
 ```
+
 Test Plot
+
 ```{r}
 plot(sg_sf)
 ```
 
 Creating ppp objects: sf method
+
 ```{r}
 childcare_ppp <- as.ppp(childcare_sf)
 ```
+
 ```{r}
 summary(childcare_ppp)
 ```
 
 To avoid overlapping points on the same place, must split them partially:
+
 ```{r}
 any(duplicated(childcare_ppp))
 ```
 
-Creating the owin object: sf method
-*all as.(functions) need to use sf layers, i.e. running on sp doesn't work
+Creating the owin object: sf method \*all as.(functions) need to use sf layers, i.e. running on sp doesn't work
+
 ```{r}
 sg_owin <- as.owin(sg_sf)
 ```
@@ -87,6 +97,7 @@ jw <- mpsz_sf %>%
 ```
 
 Plotting these target areas
+
 ```{r}
 par(mfrow=c(2,2))
 plot(pg, main = "Punggol")

@@ -1,3 +1,7 @@
+---
+execute:
+  freeze: true
+---
 ## Hands-on Exercise 6.1: Global Measures of Spatial Autocorrelation
 
 #### 1.1 Loading the necessary packages
